@@ -3,10 +3,11 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CognitoAuthService } from '../../servicios/cognitoAuth/cognito-auth.service';
+import { GamingNeonBackgroundComponent } from '../gaming-neon-background/gaming-neon-background';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, GamingNeonBackgroundComponent],
   templateUrl: './login.html',
   styleUrl: './login.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
