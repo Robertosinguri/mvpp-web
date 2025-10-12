@@ -149,9 +149,131 @@
   margin-bottom: 1rem;
 }
 
-.login-hint {
+.password-error {
+  color: #ff5555;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.form-input.error {
+  border-color: #ff5555;
+  box-shadow: 0 0 10px rgba(255, 85, 85, 0.3);
+}
+
+.password-requirements {
+  text-align: center;
+  margin-top: 0.5rem;
+  
+  small {
+    color: rgba(248, 248, 242, 0.6);
+    font-size: 0.75rem;
+    display: block;
+    font-family: $font-victor-mono;
+    
+    &.example {
+      color: rgba(1, 186, 154, 0.8);
+      font-style: italic;
+      margin-top: 0.2rem;
+    }
+  }
+}
+
+.toggle-mode {
   text-align: center;
   margin-top: 1.5rem;
+}
+
+.toggle-link {
+  color: $primary-aqua;
+  text-decoration: underline;
+  font-family: $font-red-hat;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: $primary-pink;
+    text-decoration: none;
+  }
+}
+
+.access-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.access-button {
+  padding: 1.2rem 2.5rem;
+  background: linear-gradient(45deg, $primary-purple, $primary-violet);
+  border: none;
+  border-radius: 15px;
+  color: white;
+  font-family: $font-red-hat;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 60px;
+  width: 100%;
+  max-width: 300px;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 
+      0 15px 30px rgba(129, 79, 196, 0.4),
+      0 0 30px rgba(182, 1, 255, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+}
+
+.signup-link {
+  color: $primary-aqua;
+  text-decoration: underline;
+  font-family: $font-red-hat;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: $primary-pink;
+    text-decoration: none;
+  }
+}
+
+.access-info {
+  text-align: center;
+  margin: 0;
+  
+  small {
+    color: rgba(248, 248, 242, 0.7);
+    font-family: $font-red-hat;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+}
+
+.login-hint {
+  text-align: center;
+  margin-top: 2rem;
   
   small {
     color: rgba(248, 248, 242, 0.5);
@@ -163,6 +285,128 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.confirmation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.confirmation-title {
+  font-family: $font-red-hat;
+  font-size: 1.5rem;
+  color: $primary-aqua;
+  text-align: center;
+  margin: 0;
+}
+
+.confirmation-text {
+  text-align: center;
+  color: $dark-text;
+  font-family: $font-red-hat;
+  margin: 0;
+  
+  strong {
+    color: $primary-yellow;
+  }
+}
+
+.resend-section {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.resend-link {
+  color: $primary-pink;
+  text-decoration: underline;
+  font-family: $font-red-hat;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: $primary-aqua;
+    text-decoration: none;
+  }
+}
+
+.success-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.success-icon {
+  font-size: 4rem;
+  animation: success-pulse 2s ease-in-out infinite;
+}
+
+.success-title {
+  font-size: clamp(1em, 4vw, 1.2em);
+  background: linear-gradient(45deg, $primary-pink, $primary-aqua, $primary-yellow);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent; 
+  background-size: 200% 200%;
+  animation: 
+    neon-glow 2s ease-in-out infinite alternate,
+    rainbow-shift 4s ease-in-out infinite;
+  margin: 0;
+  font-weight: 500;
+  text-align: center;
+  font-family: $font-victor-mono;
+}
+
+.success-text {
+  color: rgba(248, 248, 242, 0.7);
+  font-family: $font-victor-mono;
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.success-loader {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(0, 255, 255, 0.3);
+  border-top: 3px solid #00ffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+}
+
+.redirect-text {
+  color: rgba(248, 248, 242, 0.5);
+  font-family: $font-victor-mono;
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+@keyframes success-pulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% { 
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+@keyframes rainbow-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes neon-glow {
+  0% {
+    filter: brightness(1);
+  }
+  100% {
+    filter: brightness(1.2);
+  }
 }
 
 @keyframes background-shift {

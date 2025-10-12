@@ -1,11 +1,9 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { CognitoAuthService } from '../../servicios/cognitoAuth/cognito-auth.service';
 
-/**
- * Componente de login del sistema MVPP Web
- * Maneja la autenticación de usuarios
- */
 @Component({
   selector: 'app-login',
   imports: [CommonModule, FormsModule],
@@ -14,53 +12,120 @@ import { CommonModule } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Login {
-  // Señales reactivas para el estado del formulario
-  protected readonly username = signal('');
+  private readonly authService = inject(CognitoAuthService);
+  private readonly router = inject(Router);
+
+  protected readonly email = signal('');
+  protected readonly name = signal('');
   protected readonly password = signal('');
-  protected readonly isLoading = signal(false);
-  protected readonly errorMessage = signal('');
+  protected readonly confirmPassword = signal('');
+  protected readonly confirmationCode = signal('');
+  protected readonly isSignUpMode = signal(false);
+  protected readonly showConfirmation = signal(false);
+  protected readonly showSuccess = signal(false);
+  protected readonly pendingEmail = signal('');
 
-  /**
-   * Maneja el envío del formulario de login
-   */
-  protected onSubmit(): void {
-    if (!this.username() || !this.password()) {
-      this.errorMessage.set('Por favor, completa todos los campos');
-      return;
-    }
+  protected readonly isLoading = this.authService.isLoading$;
+  protected readonly errorMessage = this.authService.error$;
+  protected readonly isAuthenticated = this.authService.isAuthenticated$;
 
-    this.isLoading.set(true);
-    this.errorMessage.set('');
+  protected async onSubmit(): Promise<void> {
+    if (!this.email() || !this.password()) return;
 
-    // Simulación de autenticación
-    setTimeout(() => {
-      if (this.username() === 'admin' && this.password() === 'admin') {
-        console.log('Login exitoso');
-        // Aquí iría la lógica de navegación
-      } else {
-        this.errorMessage.set('Credenciales inválidas');
-      }
-      this.isLoading.set(false);
-    }, 1500);
-  }
-
-  /**
-   * Actualiza el valor del username
-   */
-  protected onUsernameChange(value: string): void {
-    this.username.set(value);
-    if (this.errorMessage()) {
-      this.errorMessage.set('');
+    if (this.isSignUpMode()) {
+      await this.handleSignUp();
+    } else {
+      await this.handleLogin();
     }
   }
 
-  /**
-   * Actualiza el valor del password
-   */
+  private async handleLogin(): Promise<void> {
+    const success = await this.authService.login({
+      username: this.email(),
+      password: this.password()
+    });
+
+    if (success) {
+      console.log('Login exitoso');
+    }
+  }
+
+  private async handleSignUp(): Promise<void> {
+    if (this.password() !== this.confirmPassword() || !this.name()) return;
+
+    const success = await this.authService.signUp({
+      username: this.email(),
+      password: this.password(),
+      email: this.email(),
+      name: this.name()
+    });
+
+    if (success) {
+      this.pendingEmail.set(this.email());
+      this.showConfirmation.set(true);
+      this.isSignUpMode.set(false);
+    }
+  }
+
+  protected async confirmSignUp(): Promise<void> {
+    if (!this.confirmationCode()) return;
+
+    const success = await this.authService.confirmSignUp(
+      this.pendingEmail(),
+      this.confirmationCode()
+    );
+
+    if (success) {
+      this.showConfirmation.set(false);
+      this.showSuccess.set(true);
+      
+      setTimeout(() => {
+        this.showSuccess.set(false);
+        this.pendingEmail.set('');
+        this.confirmationCode.set('');
+      }, 3000);
+    }
+  }
+
+  protected async resendCode(): Promise<void> {
+    await this.authService.resendConfirmationCode(this.pendingEmail());
+  }
+
+  protected onEmailChange(value: string): void {
+    this.email.set(value);
+    this.authService.clearError();
+  }
+
+  protected onNameChange(value: string): void {
+    this.name.set(value);
+    this.authService.clearError();
+  }
+
   protected onPasswordChange(value: string): void {
     this.password.set(value);
-    if (this.errorMessage()) {
-      this.errorMessage.set('');
-    }
+    this.authService.clearError();
+  }
+
+  protected onConfirmPasswordChange(value: string): void {
+    this.confirmPassword.set(value);
+    this.authService.clearError();
+  }
+
+  protected onConfirmationCodeChange(value: string): void {
+    this.confirmationCode.set(value);
+    this.authService.clearError();
+  }
+
+  protected passwordsMatch(): boolean {
+    return this.password() === this.confirmPassword() || !this.confirmPassword();
+  }
+
+  protected toggleMode(): void {
+    this.isSignUpMode.set(!this.isSignUpMode());
+    this.showConfirmation.set(false);
+    this.name.set('');
+    this.password.set('');
+    this.confirmPassword.set('');
+    this.authService.clearError();
   }
 }
