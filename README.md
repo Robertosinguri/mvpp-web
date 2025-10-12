@@ -51,7 +51,7 @@ cd mvpp-web
 npm install
 
 # Iniciar servidor de desarrollo
-npm start
+ng serve --open     <------ al igual que se hacia con ionic, para levantar la pagina.
 ```
 
 Navega a `http://localhost:4200/` para ver la aplicación.
