@@ -1,0 +1,32 @@
+<div class="vegas-world">
+  <!-- Fondo degradado estilo Vegas -->
+  <div class="vegas-background"></div>
+  
+  <!-- Luces de neón animadas -->
+  <div class="neon-border-top"></div>
+  <div class="neon-border-bottom"></div>
+  <div class="neon-border-left"></div>
+  <div class="neon-border-right"></div>
+  
+  <!-- Bombillas decorativas -->
+  <div class="bulb" *ngFor="let bulb of lightBulbs; let i = index"
+       [style.left.%]="bulb.x"
+       [style.top.%]="bulb.y"
+       [style.animation-delay.s]="bulb.delay"
+       [class]="'bulb-' + bulb.color">
+  </div>
+  
+  <!-- Estrellas brillantes -->
+  <div class="sparkle" *ngFor="let star of sparkleStars; let i = index"
+       [style.left.%]="star.x"
+       [style.top.%]="star.y"
+       [style.animation-delay.s]="star.delay">
+  </div>
+  
+  <!-- Confetti animado -->
+  <div class="confetti" *ngFor="let conf of confetti; let i = index"
+       [style.left.%]="conf.x"
+       [style.animation-delay.s]="conf.delay"
+       [style.background]="conf.color">
+  </div>
+</div>

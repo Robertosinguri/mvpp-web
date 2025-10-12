@@ -1,66 +1,55 @@
-@use "../../theme/variables.scss" as var;
-
-// ===========================================
-// ESTILOS DEL COMPONENTE SPLASH
-// ===========================================
+@use "../../theme/variables.scss" as *;
 
 .splash-content {
-  width: 100vw; 
-  height: 100vh;
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   overflow: hidden;
+  z-index: 1;
 }
 
-.main-container {
-  height: 100%;
+.splash-card {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  background: rgba(41, 46, 57, 0.125);
+  backdrop-filter: blur(6px);
+  border-radius: 25px;
+  width: 75%;
+  max-width: 420px;
+  padding: 25px 18px;
+  box-shadow: 
+    0 0 15px rgba(46, 52, 64, 0.2),
+    0 8px 25px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(248, 248, 242, 0.03);
+  border: 2px solid #292e39;
   position: relative;
-  z-index: 2;
-}
-
-.sub-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(31, 33, 44, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  height: auto;
-  min-height: 300px;
-  border-radius: 20px;
-  width: 85%;
-  max-width: 500px;
-  padding: 30px 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Estilos del logo y texto */
-.logo-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.logo {
-  animation: slow-fade-in 2s ease-out 0s forwards;
-  width: 200px;
-  height: auto;
-  margin-bottom: 15px;
+  z-index: 3;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: #2e3440;
+    border-radius: 27px;
+    z-index: -1;
+    opacity: 0.4;
+    animation: custom-glow 5s ease-in-out infinite;
+    filter: blur(1px);
+  }
 }
 
 .title-line1, .title-line2 {
   font-size: clamp(2.5em, 8vw, 3.5em);
-  font-family: var.$font_monoton;
-  color: white;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  font-family: $font-monoton;
+  color: #00ffff;
+  text-shadow: 
+    0 0 4px rgba(0, 255, 255, 0.8),
+    0 0 8px rgba(0, 255, 255, 0.5),
+    0 0 12px rgba(0, 255, 255, 0.3),
+    0 2px 10px rgba(0, 0, 0, 0.3);
   opacity: 0;
   line-height: 1.1;
   margin: 2px 0;
@@ -76,10 +65,7 @@
 
 .subtitle {
   font-size: clamp(1em, 4vw, 1.2em);
-  background: linear-gradient(
-    45deg,
-    var.$pink, var.$aqua, var.$yellow
-  );
+  background: linear-gradient(45deg, $primary-pink, $primary-aqua, $primary-yellow);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent; 
@@ -91,10 +77,9 @@
   font-weight: 500;
   text-align: center;
   padding: 0 10px;
-  font-family: var.$font_VM;
+  font-family: $font-victor-mono;
 }
 
-/* Loader */
 .loader {
   width: 200px;
   height: 8px;
@@ -126,13 +111,13 @@
     top: 0;
     height: 100%;
     width: 0%;
-    background: linear-gradient(90deg, var.$yellow, var.$aqua, var.$pink); 
+    background: linear-gradient(90deg, $primary-yellow, $primary-aqua, $primary-pink); 
     border-radius: 4px;
-    animation: progress-load 3s ease-in-out 1.2s forwards;
+    animation: progress-load 10s ease-in-out 2s forwards;
   }
 }
 
-/* Animaciones específicas del componente */
+// === ANIMACIONES ===
 @keyframes rainbow-shift {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -168,16 +153,25 @@
   }
 }
 
-// Media queries para responsividad
+@keyframes custom-glow {
+  0%, 100% { 
+    opacity: 0.4;
+    transform: scale(1);
+    filter: blur(1px) brightness(0.95);
+  }
+  50% { 
+    opacity: 0.6;
+    transform: scale(1.003);
+    filter: blur(1px) brightness(1.05);
+  }
+}
+
+// === RESPONSIVE ===
 @media (max-width: 768px) {
-  .sub-container {
+  .splash-card {
     width: 90%;
     padding: 25px 15px;
     margin: 0 20px;
-  }
-  
-  .logo {
-    width: 160px;
   }
   
   .loader {
@@ -186,12 +180,8 @@
 }
 
 @media (max-width: 480px) {
-  .sub-container {
+  .splash-card {
     padding: 20px 15px;
-  }
-  
-  .logo {
-    width: 140px;
   }
   
   .title-line1, .title-line2 {

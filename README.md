@@ -1,59 +1,114 @@
-# MvppWeb
+# MVPP Web - Desafío Grupal
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.5.
+🎮 **Aplicación web moderna desarrollada con Angular 20** para el desafío grupal MVPP.
 
-## Development server
+## 🚀 Características
 
-To start a local development server, run:
+- **Splash Screen animado** con efectos neón y gaming
+- **Sistema de login** con validación y estados reactivos
+- **Diseño responsivo** optimizado para móviles y desktop
+- **Animaciones fluidas** con CSS optimizado
+- **Arquitectura moderna** con Angular Signals y componentes standalone
+- **SSR habilitado** para mejor SEO y performance
 
-```bash
-ng serve
+## 🛠️ Tecnologías
+
+- **Angular 20.3.0** - Framework principal
+- **TypeScript 5.9** - Lenguaje de programación
+- **SCSS** - Preprocesador CSS
+- **Angular SSR** - Server-Side Rendering
+- **Vite** - Build tool optimizado
+
+## 📱 Estructura del Proyecto
+
+```
+src/
+├── app/
+│   ├── componentes/
+│   │   ├── splash/              # Pantalla de bienvenida
+│   │   ├── login/               # Sistema de autenticación
+│   │   └── gaming-neon-background/ # Fondo animado
+│   ├── theme/
+│   │   └── variables.scss       # Variables globales optimizadas
+│   └── app.routes.ts           # Configuración de rutas
+└── styles.scss                # Estilos globales
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## 🚀 Inicio Rápido
 
-## Code scaffolding
+### Prerrequisitos
+- Node.js 18+ 
+- npm o yarn
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### Instalación
 
 ```bash
-ng generate --help
+# Clonar el repositorio
+git clone <repository-url>
+cd mvpp-web
+
+# Instalar dependencias
+npm install
+
+# Iniciar servidor de desarrollo
+npm start
 ```
 
-## Building
+Navega a `http://localhost:4200/` para ver la aplicación.
 
-To build the project run:
+## 📝 Scripts Disponibles
 
 ```bash
-ng build
+npm start          # Servidor de desarrollo
+npm run build      # Build de producción
+npm test           # Ejecutar tests
+npm run serve:ssr  # Servidor SSR
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## 🎯 Funcionalidades
 
-## Running unit tests
+### Splash Screen
+- Animación de carga de 12 segundos
+- Efectos neón y elementos gaming
+- Transición automática al login
+- Diseño responsivo
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+### Sistema de Login
+- Validación en tiempo real
+- Estados de carga
+- Manejo de errores
+- Credenciales de prueba: `admin / admin`
 
-```bash
-ng test
-```
+## 📊 Optimizaciones Realizadas
 
-## Running end-to-end tests
+- ✅ **Variables SCSS consolidadas** y organizadas
+- ✅ **Componentes optimizados** con mejor documentación
+- ✅ **Animaciones CSS mejoradas** para mejor performance
+- ✅ **Código duplicado eliminado**
+- ✅ **Manejo de errores implementado**
+- ✅ **Accesibilidad mejorada**
+- ✅ **Responsive design optimizado**
 
-For end-to-end (e2e) testing, run:
+## 💱 Performance
 
-```bash
-ng e2e
-```
+- **Lazy loading** de componentes
+- **Tree shaking** automático
+- **CSS optimizado** con animaciones eficientes
+- **Imagenes optimizadas**
+- **SSR** para carga inicial rápida
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 👥 Contribución
 
-## Additional Resources
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit tus cambios (`git commit -m 'Agregar nueva funcionalidad'`)
+4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
+5. Abre un Pull Request
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## 📝 Licencia
+
+Este proyecto es parte del desafío grupal MVPP.
+
+---
+
+🚀 **Desarrollado con ❤️ por el equipo MVPP**
