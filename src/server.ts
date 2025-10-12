@@ -12,20 +12,10 @@ const browserDistFolder = join(import.meta.dirname, '../browser');
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
-/**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/{*splat}', (req, res) => {
- *   // Handle API request
- * });
- * ```
- */
+// --- NUEVA SECCIÓN DE MANEJO DE ARCHIVOS ESTÁTICOS ---
 
 /**
- * Serve static files from /browser
+ * 1. Servir archivos estáticos (CSS, JS bundles, etc.) desde /browser
  */
 app.use(
   express.static(browserDistFolder, {
@@ -34,6 +24,28 @@ app.use(
     redirect: false,
   }),
 );
+
+/**
+ * 2. CLAVE PARA EL LOGO: Manejar solicitudes que contienen un punto (archivos estáticos) 
+ * como logo.png. Esto debe hacerse ANTES de pasar al router de Angular 
+ * para evitar la redirección 302.
+ */
+app.get(/^\S+\.\S+$/, express.static(browserDistFolder, { maxAge: '1y' })); 
+
+// --- FIN DE MANEJO DE ARCHIVOS ESTÁTICOS ---
+
+
+/**
+ * Example Express Rest API endpoints can be defined here.
+ * Uncomment and define endpoints as necessary.
+ *
+ * Example:
+ * ```ts
+ * app.get('/api/{*splat}', (req, res) => {
+ * // Handle API request
+ * });
+ * ```
+ */
 
 /**
  * Handle all other requests by rendering the Angular application.
