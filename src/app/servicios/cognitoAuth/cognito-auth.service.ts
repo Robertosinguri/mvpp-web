@@ -66,6 +66,26 @@ export class CognitoAuthService {
       }
       return false;
     } catch (error: any) {
+      // Si hay una sesión activa, cerrarla e intentar de nuevo
+      if (error.message?.includes('There is already a signed in user')) {
+        try {
+          await signOut();
+          // Intentar login nuevamente después de cerrar sesión
+          const retryResult = await signIn({
+            username: credentials.username,
+            password: credentials.password
+          });
+          
+          if (retryResult.isSignedIn) {
+            await this.loadCurrentUser();
+            return true;
+          }
+        } catch (retryError: any) {
+          this.error.set(this.getErrorMessage(retryError));
+          return false;
+        }
+      }
+      
       this.error.set(this.getErrorMessage(error));
       return false;
     } finally {
@@ -178,6 +198,10 @@ export class CognitoAuthService {
 
     if (error.message?.includes('Password did not conform')) {
       return 'La contraseña no cumple los requisitos';
+    }
+
+    if (error.message?.includes('There is already a signed in user')) {
+      return 'Ya hay una sesión activa. Cerrando sesión anterior...';
     }
 
     return errorMap[error.name] || error.message || 'Error de autenticación';

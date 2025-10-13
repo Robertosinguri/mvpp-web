@@ -1,0 +1,128 @@
+<div class="game-container">
+  <header class="game-header">
+    <div class="game-info">
+      <h1>🎮 {{modoJuego === 'entrenamiento' ? 'Entrenamiento' : 'Multijugador'}}</h1>
+      <div class="tema-info">
+        <span class="tema">{{tematica}}</span>
+        <span class="dificultad dif-{{dificultad}}">{{dificultad}}</span>
+      </div>
+    </div>
+    
+    <div class="game-stats">
+      <div class="pregunta-counter">
+        <span>{{preguntaActual + 1}}/{{totalPreguntas}}</span>
+      </div>
+      <div class="puntaje">
+        <span>Puntaje: {{puntaje}}</span>
+      </div>
+      <div class="timer" [class.warning]="tiempoRestante <= 5">
+        <span>⏱️ {{tiempoRestante}}s</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Estado de carga -->
+  <div class="loading-state" *ngIf="estadoJuego === 'cargando'">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <h2>Generando preguntas...</h2>
+      <p>La IA está creando tu cuestionario personalizado</p>
+    </div>
+  </div>
+
+  <!-- Juego activo -->
+  <main class="game-main" *ngIf="estadoJuego === 'jugando'">
+    <div class="question-section">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progreso"></div>
+      </div>
+
+      <div class="question-card">
+        <h2 class="question-text">{{preguntaActual + 1}}. {{preguntaActualObj?.pregunta}}</h2>
+        
+        <div class="options-grid">
+          <button 
+            class="option-btn"
+            *ngFor="let opcion of preguntaActualObj?.opciones; let i = index"
+            [class.selected]="respuestaSeleccionada === i"
+            [class.correct]="mostrarRespuesta && i === preguntaActualObj?.respuestaCorrecta"
+            [class.incorrect]="mostrarRespuesta && respuestaSeleccionada === i && i !== preguntaActualObj?.respuestaCorrecta"
+            [disabled]="mostrarRespuesta"
+            (click)="seleccionarRespuesta(i)">
+            <span class="option-letter">{{getLetraOpcion(i)}}</span>
+            <span class="option-text">{{opcion}}</span>
+          </button>
+        </div>
+
+        <div class="question-actions" *ngIf="!mostrarRespuesta">
+          <button 
+            class="confirm-btn" 
+            [disabled]="respuestaSeleccionada === null"
+            (click)="confirmarRespuesta()">
+            Confirmar Respuesta
+          </button>
+        </div>
+
+        <div class="answer-feedback" *ngIf="mostrarRespuesta">
+          <div class="feedback-content" [class.correct]="respuestaCorrecta" [class.incorrect]="!respuestaCorrecta">
+            <h3>{{respuestaCorrecta ? '¡Correcto! 🎉' : 'Incorrecto 😔'}}</h3>
+            <p *ngIf="!respuestaCorrecta && preguntaActualObj">
+              La respuesta correcta era: <strong>{{preguntaActualObj.opciones[preguntaActualObj.respuestaCorrecta]}}</strong>
+            </p>
+          </div>
+          
+          <button class="next-btn" (click)="siguientePregunta()">
+            {{esUltimaPregunta() ? 'Ver Resultados' : 'Siguiente Pregunta'}}
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Resultados finales -->
+  <div class="results-section" *ngIf="estadoJuego === 'finalizado'">
+    <div class="results-card">
+      <h2>🏆 Resultados Finales</h2>
+      
+      <div class="score-summary">
+        <div class="final-score">
+          <span class="score-number">{{puntaje}}</span>
+          <span class="score-total">/{{totalPreguntas}}</span>
+        </div>
+        
+        <div class="score-percentage">
+          <span>{{getPorcentaje()}}% de aciertos</span>
+        </div>
+        
+        <div class="performance-message">
+          <h3>{{getMensajeRendimiento()}}</h3>
+        </div>
+      </div>
+
+      <div class="results-details">
+        <h4>Detalles de la partida:</h4>
+        <div class="detail-item">
+          <span>Temática:</span>
+          <span>{{tematica}}</span>
+        </div>
+        <div class="detail-item">
+          <span>Dificultad:</span>
+          <span class="dif-{{dificultad}}">{{dificultad}}</span>
+        </div>
+        <div class="detail-item">
+          <span>Tiempo total:</span>
+          <span>{{getTiempoTotal()}}</span>
+        </div>
+      </div>
+
+      <div class="results-actions">
+        <button class="play-again-btn" (click)="jugarDeNuevo()">
+          🔄 Jugar de Nuevo
+        </button>
+        <button class="back-btn" (click)="volverAlMenu()">
+          🏠 Volver al Menú
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

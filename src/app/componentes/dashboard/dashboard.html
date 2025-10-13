@@ -1,0 +1,36 @@
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <h1>MVPP Trivia</h1>
+    <div class="user-info">
+      <span>Bienvenido, {{userName}}</span>
+      <button class="logout-btn" (click)="logout()">Salir</button>
+    </div>
+  </header>
+
+  <main class="dashboard-main">
+    <div class="game-options">
+      <div class="option-card create-room">
+        <h2>Crear Sala</h2>
+        <p>Inicia una partida multijugador</p>
+        <button class="primary-btn" (click)="crearSala()">Crear Sala</button>
+      </div>
+
+      <div class="option-card join-room">
+        <h2>Unirse a Sala</h2>
+        <p>Únete a una partida existente</p>
+        <input 
+          type="text" 
+          placeholder="Código de sala" 
+          [(ngModel)]="codigoSala"
+          class="room-input">
+        <button class="secondary-btn" (click)="unirseASala()">Unirse</button>
+      </div>
+
+      <div class="option-card training-room">
+        <h2>Entrenamiento</h2>
+        <p>Practica solo y mejora tu ranking</p>
+        <button class="training-btn" (click)="iniciarEntrenamiento()">Entrenar</button>
+      </div>
+    </div>
+  </main>
+</div>

@@ -47,7 +47,7 @@ export class Login {
     });
 
     if (success) {
-      console.log('Login exitoso');
+      this.router.navigate(['/dashboard']);
     }
   }
 

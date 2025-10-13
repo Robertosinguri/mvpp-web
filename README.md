@@ -1,49 +1,69 @@
-# MVPP Web - Desafío Grupal
+# MVPP Web - Trivia Game 🎮
 
-🎮 **Aplicación web moderna desarrollada con Angular 20** para el desafío grupal MVPP.
+> ⚠️ **PROYECTO EN DESARROLLO ACTIVO** - Funcionalidades en construcción
 
-## 🚀 Características
+**Aplicación web de trivia multijugador** desarrollada con Angular 20 e integración de IA para generación dinámica de preguntas.
 
-- **Splash Screen animado** con efectos neón y gaming
-- **Sistema de login** con validación y estados reactivos
-- **Diseño responsivo** optimizado para móviles y desktop
-- **Animaciones fluidas** con CSS optimizado
-- **Arquitectura moderna** con Angular Signals y componentes standalone
-- **SSR habilitado** para mejor SEO y performance
+## 🎯 Estado Actual del Desarrollo
 
-## 🛠️ Tecnologías
+### ✅ **Funcionalidades Completadas**
+- **Sistema de autenticación** con AWS Cognito
+- **Dashboard principal** con opciones de juego
+- **Configuración de salas** con validación de temáticas
+- **Modo entrenamiento** individual funcional
+- **Generación de preguntas con IA** (Gemini API)
+- **Motor de juego completo** con timer y puntuación
+- **Interfaz responsive** optimizada
 
-- **Angular 20.3.0** - Framework principal
-- **TypeScript 5.9** - Lenguaje de programación
-- **SCSS** - Preprocesador CSS
+### 🚧 **En Desarrollo**
+- Sistema multijugador en tiempo real
+- Backend con WebSockets
+- Estadísticas de usuario
+- Sistema de ranking
+- Notificaciones push
+
+## 🛠️ Stack Tecnológico
+
+- **Angular 20.3.0** - Framework frontend
+- **TypeScript 5.9** - Lenguaje principal
+- **AWS Cognito** - Autenticación
+- **Google Gemini AI** - Generación de preguntas
+- **SCSS** - Estilos optimizados
 - **Angular SSR** - Server-Side Rendering
-- **Vite** - Build tool optimizado
 
-## 📱 Estructura del Proyecto
+## 📁 Estructura Actualizada
 
 ```
-src/
-├── app/
-│   ├── componentes/
-│   │   ├── splash/              # Pantalla de bienvenida
-│   │   ├── login/               # Sistema de autenticación
-│   │   └── gaming-neon-background/ # Fondo animado
-│   ├── theme/
-│   │   └── variables.scss       # Variables globales optimizadas
-│   └── app.routes.ts           # Configuración de rutas
-└── styles.scss                # Estilos globales
+src/app/
+├── componentes/
+│   ├── splash/                 # Pantalla inicial
+│   ├── login/                  # Autenticación
+│   ├── dashboard/              # Menú principal
+│   ├── configurar-sala/        # Configuración de partidas
+│   ├── entrenamiento/          # Modo individual
+│   ├── lobby/                  # Sala de espera (mockup)
+│   ├── juego/                  # Motor de juego
+│   └── gaming-neon-background/ # Fondo animado
+├── servicios/
+│   ├── cognitoAuth/           # Servicio de autenticación
+│   └── gemini/                # Integración con IA
+├── theme/
+│   └── variables.scss         # Variables globales
+└── app.routes.ts             # Rutas de la aplicación
 ```
 
-## 🚀 Inicio Rápido
+## 🚀 Instalación y Desarrollo
 
 ### Prerrequisitos
-- Node.js 18+ 
-- npm o yarn
+- Node.js 18+
+- Angular CLI 20+
+- Cuenta AWS (para Cognito)
+- API Key de Google Gemini
 
-### Instalación
+### Setup del Proyecto
 
 ```bash
-# Clonar el repositorio
+# Clonar repositorio
 git clone <repository-url>
 cd mvpp-web
 
@@ -51,64 +71,129 @@ cd mvpp-web
 npm install
 
 # Iniciar servidor de desarrollo
-ng serve --open     <------ al igual que se hacia con ionic, para levantar la pagina.
+ng serve --open
 ```
 
-Navega a `http://localhost:4200/` para ver la aplicación.
+**URL de desarrollo:** `http://localhost:4200/`
 
-## 📝 Scripts Disponibles
+### Scripts Disponibles
 
 ```bash
 npm start          # Servidor de desarrollo
-npm run build      # Build de producción
+npm run build      # Build de producción  
 npm test           # Ejecutar tests
 npm run serve:ssr  # Servidor SSR
 ```
 
-## 🎯 Funcionalidades
+## 🎮 Funcionalidades Implementadas
 
-### Splash Screen
-- Animación de carga de 12 segundos
-- Efectos neón y elementos gaming
-- Transición automática al login
-- Diseño responsivo
-
-### Sistema de Login
+### 🔐 **Autenticación**
+- Login con AWS Cognito
+- Manejo de sesiones
 - Validación en tiempo real
-- Estados de carga
-- Manejo de errores
-- Credenciales de prueba: `admin / admin`
+- Mensajes de error en español
 
-## 📊 Optimizaciones Realizadas
+### 🏠 **Dashboard**
+- Crear sala de juego
+- Unirse a sala existente
+- Modo entrenamiento individual
+- Navegación intuitiva
 
-- ✅ **Variables SCSS consolidadas** y organizadas
-- ✅ **Componentes optimizados** con mejor documentación
-- ✅ **Animaciones CSS mejoradas** para mejor performance
-- ✅ **Código duplicado eliminado**
-- ✅ **Manejo de errores implementado**
-- ✅ **Accesibilidad mejorada**
-- ✅ **Responsive design optimizado**
+### ⚙️ **Configuración de Juego**
+- Selección de temática (máximo 3 palabras)
+- Niveles de dificultad: Baby 🍼, Conocedor 🧠, Killer 💀
+- Validación en tiempo real
+- Configuración de jugadores (2-8)
 
-## 💱 Performance
+### 🤖 **Generación de Preguntas con IA**
+- Integración con Google Gemini AI
+- Preguntas contextuales por temática
+- Diferentes niveles de dificultad
+- Sistema de fallback robusto
+- Timeout de 15 segundos
 
-- **Lazy loading** de componentes
-- **Tree shaking** automático
-- **CSS optimizado** con animaciones eficientes
-- **Imagenes optimizadas**
-- **SSR** para carga inicial rápida
+### 🎯 **Motor de Juego**
+- Timer de 30 segundos por pregunta
+- Sistema de puntuación
+- Feedback inmediato de respuestas
+- Pantalla de resultados completa
+- Opción de jugar de nuevo
 
-## 👥 Contribución
+## 🎨 Características Técnicas
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit tus cambios (`git commit -m 'Agregar nueva funcionalidad'`)
+### **Arquitectura**
+- Componentes standalone de Angular
+- Servicios inyectables optimizados
+- Routing modular
+- Change Detection optimizada
+
+### **Estilos**
+- Variables SCSS centralizadas
+- Mixins reutilizables
+- Diseño responsive mobile-first
+- Tema gaming con efectos neón
+
+### **Integración de APIs**
+- AWS Cognito para autenticación
+- Google Gemini AI para preguntas
+- Manejo robusto de errores
+- Timeouts configurables
+
+## 🔧 Configuración de Desarrollo
+
+### Variables de Entorno
+```typescript
+// Configurar en servicios correspondientes
+AWS_COGNITO_USER_POOL_ID = 'tu-user-pool-id'
+AWS_COGNITO_CLIENT_ID = 'tu-client-id'
+GEMINI_API_KEY = 'tu-gemini-api-key'
+```
+
+## 🚧 Roadmap de Desarrollo
+
+### **Próximas Funcionalidades**
+- [ ] Sistema multijugador en tiempo real
+- [ ] Backend con Express.js
+- [ ] WebSockets para comunicación
+- [ ] Base de datos de estadísticas
+- [ ] Sistema de ranking global
+- [ ] Notificaciones push
+- [ ] Modo torneo
+- [ ] Personalización de avatares
+
+### **Mejoras Técnicas**
+- [ ] Tests unitarios completos
+- [ ] CI/CD pipeline
+- [ ] Monitoreo de performance
+- [ ] Optimización de bundle size
+- [ ] PWA capabilities
+
+## 📈 Estado del Proyecto
+
+**Versión Actual:** `v0.3.0-alpha`
+
+**Última Actualización:** Diciembre 2024
+
+**Funcionalidad Core:** ✅ Completada
+**Multijugador:** 🚧 En desarrollo
+**Backend:** 📋 Planificado
+
+## 🤝 Contribución
+
+> **Nota:** Proyecto en desarrollo activo. Las funcionalidades pueden cambiar.
+
+1. Fork del repositorio
+2. Crear rama feature (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit cambios (`git commit -m 'feat: nueva funcionalidad'`)
 4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
-5. Abre un Pull Request
+5. Crear Pull Request
 
-## 📝 Licencia
+## 📄 Licencia
 
-Este proyecto es parte del desafío grupal MVPP.
+Proyecto de desarrollo para desafío grupal MVPP.
 
 ---
 
-🚀 **Desarrollado con ❤️ por el equipo MVPP**
+**🎮 MVPP Trivia Game - En construcción con ❤️**
+
+> *"Donde la IA se encuentra con la diversión multijugador"*
