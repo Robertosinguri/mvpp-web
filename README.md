@@ -1,199 +1,179 @@
 # MVPP Web - Trivia Game 🎮
 
-> ⚠️ **PROYECTO EN DESARROLLO ACTIVO** - Funcionalidades en construcción
+> Aplicación web de trivia multijugador con IA generativa
 
-**Aplicación web de trivia multijugador** desarrollada con Angular 20 e integración de IA para generación dinámica de preguntas.
+## 📁 Estructura del Proyecto
 
-## 🎯 Estado Actual del Desarrollo
+```
+mvpp-web/
+├── frontend/                    # Angular 20 - Interfaz de usuario
+│   ├── src/app/
+│   │   ├── componentes/         # Componentes de UI
+│   │   │   ├── splash/          # Pantalla inicial
+│   │   │   ├── login/           # Autenticación
+│   │   │   ├── dashboard/       # Panel principal
+│   │   │   ├── configurar-sala/ # Crear/configurar salas
+│   │   │   ├── lobby/           # Sala de espera multijugador
+│   │   │   ├── juego/           # Motor de juego
+│   │   │   ├── entrenamiento/   # Modo práctica
+│   │   │   └── gaming-neon-background/ # Background animado
+│   │   ├── servicios/           # Servicios centralizados
+│   │   │   ├── cognitoAuth/     # Autenticación AWS Cognito
+│   │   │   ├── gemini/          # Integración Gemini AI
+│   │   │   └── estadisticas/    # Gateway de datos (Frontend ↔ Backend)
+│   │   └── theme/               # Variables SCSS globales
+├── backend/                     # Express.js - API y WebSockets
+│   ├── src/
+│   │   ├── routes/              # Rutas HTTP
+│   │   │   ├── auth.js          # Autenticación
+│   │   │   ├── salas.js         # Gestión de salas
+│   │   │   ├── juegos.js        # Lógica de juego
+│   │   │   └── estadisticas.js  # Métricas y ranking
+│   │   ├── services/            # Lógica de negocio
+│   │   │   ├── authService.js   # Validación de usuarios
+│   │   │   ├── salasService.js  # Gestión de salas
+│   │   │   ├── juegosService.js # Motor de juego
+│   │   │   └── geminiService.js # Generación de preguntas IA
+│   │   ├── middleware/          # Middlewares personalizados
+│   │   └── websockets/          # Eventos tiempo real
+└── shared/                      # Tipos TypeScript compartidos
+```
 
-### ✅ **Funcionalidades Completadas**
-- **Sistema de autenticación** con AWS Cognito
-- **Dashboard principal** con opciones de juego
-- **Configuración de salas** con validación de temáticas
-- **Modo entrenamiento** individual funcional
-- **Generación de preguntas con IA** (Gemini API)
-- **Motor de juego completo** con timer y puntuación
-- **Interfaz responsive** optimizada
+## 🏗️ Arquitectura del Sistema
 
-### 🚧 **En Desarrollo**
-- Sistema multijugador en tiempo real
-- Backend con WebSockets
-- Estadísticas de usuario
-- Sistema de ranking
-- Notificaciones push
+```
+┌─────────────────────────────────────────────────────────┐
+│                    FRONTEND (Angular 20)               │
+├─────────────────────────────────────────────────────────┤
+│ Dashboard → [Crear Sala | Unirse | Entrenamiento]      │
+│     ↓            ↓         ↓           ↓               │
+│ Configurar → Lobby → Juego ← Entrenamiento             │
+│                                                         │
+│ Servicios:                                              │
+│ • EstadisticasService (Gateway datos)                   │
+│ • GeminiService (IA preguntas)                          │
+│ • CognitoAuthService (Autenticación)                    │
+└─────────────────────────────────────────────────────────┘
+                            ↕ HTTP/WebSocket
+┌─────────────────────────────────────────────────────────┐
+│                    BACKEND (Express.js)                │
+├─────────────────────────────────────────────────────────┤
+│ Routes: /auth /salas /juegos /estadisticas              │
+│ Services: AuthService, SalasService, JuegosService      │
+│ WebSocket: Tiempo real multijugador                    │
+└─────────────────────────────────────────────────────────┘
+                            ↕
+┌─────────────────────────────────────────────────────────┐
+│                 SERVICIOS EXTERNOS                      │
+├─────────────────────────────────────────────────────────┤
+│ • AWS DynamoDB (Persistencia)                           │
+│ • Google Gemini API (Generación IA)                     │
+│ • AWS Cognito (Autenticación)                           │
+└─────────────────────────────────────────────────────────┘
+```
+
+## 🏗️ Arquitectura de Servicios
+
+### **Frontend Services (Centralizados)**
+
+#### **EstadisticasService** - Gateway Principal
+- **Propósito:** Puerta única de datos entre Frontend ↔ Backend ↔ DynamoDB
+- **Funciones:**
+  - `obtenerEstadisticasPersonales()` → Datos para Entrenamiento
+  - `obtenerRankingGlobal()` → Top jugadores (Dashboard widget)
+  - `obtenerProgresoParcial()` → Métricas rápidas
+  - `guardarResultadoPartida()` → Persistencia en DynamoDB
+  - `verificarMejoraRanking()` → Notificaciones de progreso
+
+#### **GeminiService** - IA Generativa
+- **Propósito:** Generación de preguntas con Google Gemini API
+- **Características:**
+  - Sistema de reintentos (3 intentos)
+  - Parsing robusto de markdown
+  - Sin fallbacks genéricos (mantiene credibilidad IA)
+  - Timeout de 20 segundos
+
+#### **CognitoAuthService** - Autenticación
+- **Propósito:** Gestión completa de usuarios con AWS Cognito
+- **Flujos:** Login → SignUp → Confirmación → Dashboard
+
+### **Backend Services (Planificados)**
+- **Rutas RESTful** para operaciones CRUD
+- **WebSocket handlers** para tiempo real
+- **Integración DynamoDB** para persistencia
+- **Middleware de validación** y seguridad
+
+## 🚀 Desarrollo
+
+### Frontend (Angular 20)
+```bash
+cd frontend
+npm install
+ng serve
+# http://localhost:4200
+```
+
+### Backend (Express - En desarrollo)
+```bash
+cd backend
+npm install
+npm run dev
+# http://localhost:3000
+```
 
 ## 🛠️ Stack Tecnológico
 
-- **Angular 20.3.0** - Framework frontend
-- **TypeScript 5.9** - Lenguaje principal
-- **AWS Cognito** - Autenticación
-- **Google Gemini AI** - Generación de preguntas
-- **SCSS** - Estilos optimizados
-- **Angular SSR** - Server-Side Rendering
+- **Frontend:** Angular 20, TypeScript, SCSS, Standalone Components
+- **Backend:** Express.js, Socket.IO, TypeScript
+- **Base de Datos:** AWS DynamoDB (NoSQL)
+- **IA:** Google Gemini 2.0 Flash API
+- **Auth:** AWS Cognito (JWT)
+- **Deploy:** AWS App Runner (Containers)
+- **Tiempo Real:** WebSockets para multijugador
 
-## 📁 Estructura Actualizada
+## 🎯 Reorganización del Proyecto
 
+### **Antes (Estructura Mixta):**
 ```
-src/app/
-├── componentes/
-│   ├── splash/                 # Pantalla inicial
-│   ├── login/                  # Autenticación
-│   ├── dashboard/              # Menú principal
-│   ├── configurar-sala/        # Configuración de partidas
-│   ├── entrenamiento/          # Modo individual
-│   ├── lobby/                  # Sala de espera (mockup)
-│   ├── juego/                  # Motor de juego
-│   └── gaming-neon-background/ # Fondo animado
-├── servicios/
-│   ├── cognitoAuth/           # Servicio de autenticación
-│   └── gemini/                # Integración con IA
-├── theme/
-│   └── variables.scss         # Variables globales
-└── app.routes.ts             # Rutas de la aplicación
+mvpp-web/
+├── src/ (mezclado frontend/backend)
+└── componentes/ (sin organización)
 ```
 
-## 🚀 Instalación y Desarrollo
-
-### Prerrequisitos
-- Node.js 18+
-- Angular CLI 20+
-- Cuenta AWS (para Cognito)
-- API Key de Google Gemini
-
-### Setup del Proyecto
-
-```bash
-# Clonar repositorio
-git clone <repository-url>
-cd mvpp-web
-
-# Instalar dependencias
-npm install
-
-# Iniciar servidor de desarrollo
-ng serve --open
+### **Después (Separación Profesional):**
+```
+mvpp-web/
+├── frontend/ (Angular independiente)
+├── backend/ (Express independiente)
+└── shared/ (Tipos compartidos)
 ```
 
-**URL de desarrollo:** `http://localhost:4200/`
+### **Beneficios de la Reorganización:**
+- ✅ **Separación clara** de responsabilidades
+- ✅ **Desarrollo independiente** Frontend/Backend
+- ✅ **Preparado para Docker** y despliegue
+- ✅ **Escalabilidad** y mantenimiento
+- ✅ **Servicios centralizados** con fallbacks
 
-### Scripts Disponibles
+## 📊 Estado del Desarrollo
 
-```bash
-npm start          # Servidor de desarrollo
-npm run build      # Build de producción  
-npm test           # Ejecutar tests
-npm run serve:ssr  # Servidor SSR
-```
+### ✅ **Frontend (Completado)**
+- Componentes principales implementados
+- Servicios centralizados funcionando
+- Theme system con variables SCSS
+- Background gaming neon animado
+- Integración Gemini AI operativa
+- Sistema de autenticación completo
 
-## 🎮 Funcionalidades Implementadas
+### 🚧 **Backend (Siguiente Fase)**
+- Estructura base definida
+- Rutas y servicios planificados
+- Integración DynamoDB pendiente
+- WebSockets para tiempo real
 
-### 🔐 **Autenticación**
-- Login con AWS Cognito
-- Manejo de sesiones
-- Validación en tiempo real
-- Mensajes de error en español
-
-### 🏠 **Dashboard**
-- Crear sala de juego
-- Unirse a sala existente
-- Modo entrenamiento individual
-- Navegación intuitiva
-
-### ⚙️ **Configuración de Juego**
-- Selección de temática (máximo 3 palabras)
-- Niveles de dificultad: Baby 🍼, Conocedor 🧠, Killer 💀
-- Validación en tiempo real
-- Configuración de jugadores (2-8)
-
-### 🤖 **Generación de Preguntas con IA**
-- Integración con Google Gemini AI
-- Preguntas contextuales por temática
-- Diferentes niveles de dificultad
-- Sistema de fallback robusto
-- Timeout de 15 segundos
-
-### 🎯 **Motor de Juego**
-- Timer de 30 segundos por pregunta
-- Sistema de puntuación
-- Feedback inmediato de respuestas
-- Pantalla de resultados completa
-- Opción de jugar de nuevo
-
-## 🎨 Características Técnicas
-
-### **Arquitectura**
-- Componentes standalone de Angular
-- Servicios inyectables optimizados
-- Routing modular
-- Change Detection optimizada
-
-### **Estilos**
-- Variables SCSS centralizadas
-- Mixins reutilizables
-- Diseño responsive mobile-first
-- Tema gaming con efectos neón
-
-### **Integración de APIs**
-- AWS Cognito para autenticación
-- Google Gemini AI para preguntas
-- Manejo robusto de errores
-- Timeouts configurables
-
-## 🔧 Configuración de Desarrollo
-
-### Variables de Entorno
-```typescript
-// Configurar en servicios correspondientes
-AWS_COGNITO_USER_POOL_ID = 'tu-user-pool-id'
-AWS_COGNITO_CLIENT_ID = 'tu-client-id'
-GEMINI_API_KEY = 'tu-gemini-api-key'
-```
-
-## 🚧 Roadmap de Desarrollo
-
-### **Próximas Funcionalidades**
-- [ ] Sistema multijugador en tiempo real
-- [ ] Backend con Express.js
-- [ ] WebSockets para comunicación
-- [ ] Base de datos de estadísticas
-- [ ] Sistema de ranking global
-- [ ] Notificaciones push
-- [ ] Modo torneo
-- [ ] Personalización de avatares
-
-### **Mejoras Técnicas**
-- [ ] Tests unitarios completos
-- [ ] CI/CD pipeline
-- [ ] Monitoreo de performance
-- [ ] Optimización de bundle size
-- [ ] PWA capabilities
-
-## 📈 Estado del Proyecto
-
-**Versión Actual:** `v0.3.0-alpha`
-
-**Última Actualización:** Diciembre 2024
-
-**Funcionalidad Core:** ✅ Completada
-**Multijugador:** 🚧 En desarrollo
-**Backend:** 📋 Planificado
-
-## 🤝 Contribución
-
-> **Nota:** Proyecto en desarrollo activo. Las funcionalidades pueden cambiar.
-
-1. Fork del repositorio
-2. Crear rama feature (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit cambios (`git commit -m 'feat: nueva funcionalidad'`)
-4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
-5. Crear Pull Request
-
-## 📄 Licencia
-
-Proyecto de desarrollo para desafío grupal MVPP.
-
----
-
-**🎮 MVPP Trivia Game - En construcción con ❤️**
-
-> *"Donde la IA se encuentra con la diversión multijugador"*
+### 📋 **Próximos Pasos**
+1. Implementar backend Express.js
+2. Configurar DynamoDB y tablas
+3. Desarrollar WebSocket handlers
+4. Integración Frontend ↔ Backend
+5. Despliegue en AWS App Runner
