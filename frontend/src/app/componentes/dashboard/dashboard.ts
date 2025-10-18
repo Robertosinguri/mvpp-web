@@ -54,6 +54,10 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/entrenamiento']);
   }
 
+  verAbout() {
+    this.router.navigate(['/about']);
+  }
+
   async logout() {
     try {
       await this.cognitoAuth.logout();
