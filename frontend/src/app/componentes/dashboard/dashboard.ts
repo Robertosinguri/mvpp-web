@@ -30,7 +30,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     const user = this.cognitoAuth.currentUser$();
     if (user) {
-      this.userName = user.username || 'Usuario';
+      this.userName = user.name || user.username || 'Usuario';
     } else {
       this.router.navigate(['/login']);
     }
