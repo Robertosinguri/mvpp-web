@@ -1,42 +1,19 @@
 @use '../../theme/variables.scss' as *;
 
 .lobby-container {
-  min-height: 100vh;
-  background: $background-gradient;
-  color: $dark-text;
-  font-family: $font-red-hat;
-  display: flex;
-  flex-direction: column;
+ @extend %page-container;
 }
 
 .lobby-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
+    @extend %page-header;
 
   h1 {
-    font-family: $font-monoton;
-    font-size: 1.8rem;
-    color: $primary-yellow;
-    text-shadow: 0 0 10px rgba(230, 189, 0, 0.5);
+    color: $primary-pink;
+    text-shadow: 0 0 10px rgba(255, 80, 140, 0.5);
   }
 
-  .leave-btn {
-    padding: 0.5rem 1rem;
-    background: transparent;
-    border: 1px solid $primary-pink;
-    color: $primary-pink;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background: $primary-pink;
-      color: white;
-    }
+  .back-btn {
+    @extend %back-btn;
   }
 }
 
@@ -52,12 +29,15 @@
 }
 
 .players-section {
+   @extend %content-panel;
+  padding: 2rem;
+}
+
   h2 {
     font-family: $font-victor-mono;
     color: $primary-violet;
     margin-bottom: 1.5rem;
   }
-}
 
 .players-grid {
   display: grid;

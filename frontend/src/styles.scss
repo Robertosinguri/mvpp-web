@@ -19,9 +19,23 @@ body {
   font-family: $font-red-hat;
   line-height: 1.6;
   color: $dark-text;
-  background: $dark-bg;
+  background: transparent;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+// ===========================================
+// OCULTAR SCROLLBAR VISUALMENTE
+// ===========================================
+/* Para navegadores WebKit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 0;
+  background: transparent; /* Opcional: para navegadores más antiguos */
+}
+
+/* Para Firefox */
+html {
+  scrollbar-width: none;
 }
 
 // Utilidades globales
