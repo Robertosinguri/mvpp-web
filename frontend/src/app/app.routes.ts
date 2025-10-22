@@ -6,6 +6,7 @@ import { ConfigurarSalaComponent } from './componentes/configurar-sala/configura
 import { LobbyComponent } from './componentes/lobby/lobby';
 import { EntrenamientoComponent } from './componentes/entrenamiento/entrenamiento';
 import { JuegoComponent } from './componentes/juego/juego'; 
+import { About } from './componentes/about/about';
 
 export const routes: Routes = [
   // RUTA 1: La ruta raíz (la primera que se carga)
@@ -54,6 +55,12 @@ export const routes: Routes = [
   {
     path: 'juego',
     component: JuegoComponent
+  },
+  
+  // RUTA 9: About
+  {
+    path: 'about',
+    component: About
   },
   
   // RUTA OPCIONAL: Si el usuario teclea una URL incorrecta, redirige al inicio

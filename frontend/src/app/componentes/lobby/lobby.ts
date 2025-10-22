@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { GamingNeonBackgroundComponent } from '../gaming-neon-background/gaming-neon-background';
 
 interface Jugador {
   id: string;
@@ -15,7 +16,7 @@ interface Jugador {
 @Component({
   selector: 'app-lobby',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, GamingNeonBackgroundComponent],
   templateUrl: './lobby.html',
   styleUrls: ['./lobby.scss']
 })

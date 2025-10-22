@@ -1,0 +1,73 @@
+@use '../../theme/variables.scss' as *;
+
+.config-container {
+    @extend %page-container;
+}
+
+.config-header {
+    @extend %page-header;
+
+    h1 {
+        color: $primary-sky;
+    }
+
+    .back-btn {
+        @extend %back-btn;
+    }
+}
+
+.about-main {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 2rem; 
+    max-width: 1200 px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.about-card {
+    @extend %content-panel;
+    padding: 2rem;
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;    
+    background-color: rgba(66, 66, 78, 0.534);
+    &:hover {
+        transform: translateY(-5px) scale(1.03);
+    }
+}
+
+.text-card {
+  h2 {
+    font-family: $font-victor-mono;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    font-size: 1.2rem;
+
+    &#yellow {
+      color: $primary-yellow;
+    }
+
+    &#sky {
+      color: $primary-sky;
+    }
+
+    &#violet {
+      color: $primary-violet;
+    }
+  }
+
+  p {
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+    text-align: justify;    
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .about-main {
+    grid-template-columns: 1fr; 
+    max-width: 90%;
+  }
+}

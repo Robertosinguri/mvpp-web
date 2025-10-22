@@ -1,10 +1,11 @@
 import { Injectable, signal } from '@angular/core';
 import { Amplify } from 'aws-amplify';
-import { signIn, signOut, getCurrentUser, signUp, confirmSignUp, resendSignUpCode } from 'aws-amplify/auth';
+import { signIn, signOut, getCurrentUser, signUp, confirmSignUp, resendSignUpCode, fetchUserAttributes } from 'aws-amplify/auth';
 import { COGNITO_CONFIG } from './cognito-config';
 
 export interface AuthUser {
   username: string;
+  name?: string;
   email?: string;
 }
 
@@ -169,10 +170,14 @@ export class CognitoAuthService {
 
   private async loadCurrentUser(): Promise<void> {
     try {
-      const user = await getCurrentUser();
+        const [user, attributes] = await Promise.all([
+        getCurrentUser(),
+        fetchUserAttributes()
+      ]);
       this.currentUser.set({
         username: user.username,
-        email: user.signInDetails?.loginId
+        name: attributes.name,
+        email: attributes.email
       });
       this.isAuthenticated.set(true);
     } catch (error) {

@@ -17,6 +17,7 @@ $primary-violet: #b601ff;
 $primary-pink: #ff508c;
 $primary-aqua: #01ba9a;
 $primary-yellow: #e6bd00;
+$primary-sky: #00cfe6;
 
 // Gradiente principal
 $background-gradient: linear-gradient(0deg, $primary-purple 0%, $primary-violet 100%);
@@ -33,19 +34,24 @@ $dark-accent: #6272a4;
 
 // Layout base para páginas
 %page-container {
-  min-height: 100vh;
-  background: $background-gradient;
+  position: relative; /* Crea un contexto de apilamiento */
+  height: 100vh; /* Ocupa exactamente la altura de la pantalla */
+  overflow-y: auto; /* El scroll ocurre DENTRO de este contenedor */
+  background: transparent;
   color: $dark-text;
   font-family: $font-red-hat;
 }
 
 // Header compartido
 %page-header {
+  position: sticky; /* Se mantiene fijo en la parte superior del contenedor */
+  top: 0; /* Se pega al borde superior */
+  z-index: 100; /* Un z-index más alto para máxima seguridad */
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.450);
   backdrop-filter: blur(10px);
 
   h1 {
@@ -190,5 +196,5 @@ html, body {
   padding: 0;
   width: 100%;
   height: 100%;
-  overflow-x: hidden;
+  overflow: hidden; /* Evita CUALQUIER scroll en el body/html */
 }
