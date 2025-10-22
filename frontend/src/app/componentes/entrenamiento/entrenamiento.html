@@ -85,7 +85,8 @@
       </div>
     </div>
 
-    <div class="stats-panel">
+    <!-- ✅ Sección de estadísticas protegida con *ngIf -->
+    <div class="stats-panel" *ngIf="estadisticas">
       <h3>📊 Tu Progreso</h3>
       
       <div class="stat-item">

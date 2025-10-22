@@ -28,13 +28,7 @@ export class EntrenamientoComponent implements OnInit {
     'cine', 'tecnología', 'cocina', 'arte'
   ];
 
-  estadisticas: EstadisticasUsuario = {
-    partidasJugadas: 0,
-    mejorPuntaje: 0,
-    promedio: 0,
-    posicionRanking: 0,
-    temasRecientes: []
-  };
+  estadisticas: EstadisticasUsuario | null = null;
 
   constructor(
     private router: Router,
@@ -46,17 +40,19 @@ export class EntrenamientoComponent implements OnInit {
   }
 
   cargarEstadisticas() {
-    // TODO: Obtener userId real del sistema de autenticación
-    const userId = 'user-temp-id';
-    
+    const userId = 'user-temp-id'; // Reemplazar con ID real si tenés autenticación
+
     this.estadisticasService.obtenerEstadisticasPersonales(userId)
       .subscribe({
         next: (stats) => {
-          this.estadisticas = stats;
+          if (stats) {
+            this.estadisticas = stats;
+          } else {
+            console.warn('No se recibieron estadísticas para el usuario.');
+          }
         },
         error: (error) => {
           console.error('Error cargando estadísticas:', error);
-          // Fallback ya manejado en el servicio
         }
       });
   }
