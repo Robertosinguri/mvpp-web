@@ -1,0 +1,90 @@
+<app-gaming-neon-background></app-gaming-neon-background>
+<div class="training-container">
+  <header class="training-header">
+    <h1>🎯 Entrenamiento Individual</h1>
+    <button class="back-btn" (click)="volver()">← Volver</button>
+  </header>
+
+  <main class="training-main">
+    <div class="config-section">
+      <div class="training-info">
+        <h2>Practica y Mejora tu Ranking</h2>
+        <p>Configura tu sesión de entrenamiento personalizada con IA</p>
+      </div>
+
+      <div class="config-form">
+        <div class="input-group">
+          <label>Tu Temática de Expertise</label>
+          <p class="help-text">Máximo 3 palabras para preguntas precisas de IA</p>
+          <input 
+            type="text" 
+            placeholder="Ej: alta cocina, machine learning, rolling stones..." 
+            [(ngModel)]="configuracion.tematica"
+            (input)="validarTematica($event)"
+            class="tematica-input"
+            [class.error]="tematicaInvalida"
+            maxlength="50">
+          
+          <div class="validation-message" *ngIf="tematicaInvalida">
+            ⚠️ Máximo 3 palabras para que la IA genere preguntas precisas
+          </div>
+          
+          <div class="word-counter">
+            Palabras: {{contarPalabras(configuracion.tematica)}}/3
+          </div>
+          
+          <div class="suggestions" *ngIf="!configuracion.tematica">
+            <span class="suggestions-label">💡 Ideas populares:</span>
+            <div class="suggestion-tags">
+              <button 
+                type="button"
+                class="suggestion-tag" 
+                *ngFor="let sugerencia of sugerenciasTematicas"
+                (click)="seleccionarSugerencia(sugerencia)">
+                {{sugerencia}}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Nivel de Dificultad</label>
+          <div class="difficulty-options">
+            <button 
+              class="difficulty-btn"
+              [class.active]="configuracion.dificultad === 'baby'"
+              (click)="configuracion.dificultad = 'baby'">
+              🍼 Baby
+              <span class="difficulty-desc">Preguntas básicas</span>
+            </button>
+            <button 
+              class="difficulty-btn"
+              [class.active]="configuracion.dificultad === 'conocedor'"
+              (click)="configuracion.dificultad = 'conocedor'">
+              🧠 Conocedor
+              <span class="difficulty-desc">Nivel intermedio</span>
+            </button>
+            <button 
+              class="difficulty-btn"
+              [class.active]="configuracion.dificultad === 'killer'"
+              (click)="configuracion.dificultad = 'killer'">
+              💀 Killer
+              <span class="difficulty-desc">Experto extremo</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="action-section">
+          <button 
+            class="start-training-btn" 
+            [disabled]="!esConfiguracionValida()"
+            (click)="iniciarEntrenamiento()">
+            🚀 Comenzar Entrenamiento
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+  </main>
+</div>

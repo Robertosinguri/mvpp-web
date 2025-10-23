@@ -1,0 +1,137 @@
+@startuml MVPP Web Architecture
+
+!define RECTANGLE class
+
+title MVPP Web - Trivia Game Architecture
+
+package "Frontend (Angular 20)" {
+  component "Splash Component" as splash
+  component "Login Component" as login  
+  component "Dashboard Component" as dashboard
+  component "Configurar Sala Component" as configurarSala
+  component "Lobby Component" as lobby
+  component "Juego Component" as juego
+  component "Entrenamiento Component" as entrenamiento
+  component "Sobre MVPP Component" as sobreMvpp
+  
+  component "Auth Service" as authSvc
+  component "Gemini Service" as geminiSvc
+  component "Estadisticas Service" as estadisticasSvc
+  component "HTTP Client" as http
+  
+  ' Frontend Internal Connections
+  splash --> login : navigate
+  login --> dashboard : after auth
+  dashboard --> configurarSala : crear sala
+  dashboard --> lobby : unirse sala
+  dashboard --> entrenamiento : entrenar
+  dashboard --> sobreMvpp : sobre mvpp
+  configurarSala --> lobby : sala creada
+  lobby --> juego : start game
+  entrenamiento --> juego : start training
+  
+  ' Dashboard Static Elements
+  note right of dashboard
+    Elementos estáticos:
+    - Ranking Widget (Top 5)
+    - Instrucciones Card
+    - Cards de navegación
+  end note
+  
+  ' Service Connections
+  login --> authSvc
+  dashboard --> estadisticasSvc : ranking data
+  entrenamiento --> estadisticasSvc : personal stats
+  entrenamiento --> geminiSvc : generate questions
+  juego --> geminiSvc : generate questions
+  juego --> estadisticasSvc : save results
+  
+  authSvc --> http
+  geminiSvc --> http
+  estadisticasSvc --> http
+}
+
+package "Backend (Express.js)" {
+  component "Auth Routes" as authRoutes
+  component "Salas Routes" as salasRoutes
+  component "Juegos Routes" as juegosRoutes
+  component "Estadisticas Routes" as estadisticasRoutes
+  
+  component "Auth Service" as authBackSvc
+  component "Salas Service" as salasBackSvc
+  component "Juegos Service" as juegosBackSvc
+  component "Gemini Service" as geminiBackSvc
+  
+  component "WebSocket Handler" as ws
+  component "Middleware" as middleware
+  
+  ' Backend Internal Connections
+  authRoutes --> authBackSvc
+  salasRoutes --> salasBackSvc
+  juegosRoutes --> juegosBackSvc
+  estadisticasRoutes --> estadisticasSvc
+  
+  ws --> salasBackSvc
+  ws --> juegosBackSvc
+  
+  middleware --> authRoutes
+  middleware --> salasRoutes
+  middleware --> juegosRoutes
+  middleware --> estadisticasRoutes
+}
+
+cloud "External Services" {
+  component "Google Gemini API" as geminiAPI
+  component "AWS Cognito" as cognito
+}
+
+database "AWS DynamoDB" {
+  component "Users Table" as usersTable
+  component "Salas Table" as salasTable
+  component "Juegos Table" as juegosTable
+  component "Estadisticas Table" as estadisticasTable
+}
+
+' Frontend to Backend Connections
+http --> authRoutes : HTTP/REST
+http --> salasRoutes : HTTP/REST
+http --> juegosRoutes : HTTP/REST
+http --> estadisticasRoutes : HTTP/REST
+lobby --> ws : WebSocket
+juego --> ws : WebSocket
+
+' Backend to External Services
+authBackSvc --> cognito : Authentication
+geminiBackSvc --> geminiAPI : Generate Questions
+
+' Backend to Database
+authBackSvc --> usersTable
+salasBackSvc --> salasTable
+juegosBackSvc --> juegosTable
+juegosBackSvc --> estadisticasTable
+
+' Frontend to External (Direct)
+geminiSvc --> geminiAPI : Direct API Call
+authSvc --> cognito : Direct Auth
+
+note right of geminiAPI
+  Genera preguntas de trivia
+  basadas en temas del usuario
+end note
+
+note right of ws
+  Eventos de juego en tiempo real:
+  - Jugador se une/sale
+  - Sincronización de preguntas
+  - Envío de respuestas
+  - Actualización de puntajes
+end note
+
+note bottom of DynamoDB
+  Base de datos NoSQL
+  - Serverless
+  - Auto-escalado
+  - Pago por uso
+end note
+
+@enduml
