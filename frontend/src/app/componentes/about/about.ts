@@ -1,12 +1,12 @@
 import { Component, importProvidersFrom } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { GamingNeonBackgroundComponent } from '../gaming-neon-background/gaming-neon-background';
+import { bkgComponent} from '../background/background';
 
 @Component({
   selector: 'app-about',
   standalone: true,
-  imports: [GamingNeonBackgroundComponent, CommonModule],
+  imports: [bkgComponent, CommonModule],
   templateUrl: './about.html',
   styleUrl: './about.scss'
 })

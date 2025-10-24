@@ -4,11 +4,11 @@
   "description": "Backend para MVPP Trivia Game",
   "main": "src/app.js",
   "scripts": {
-    "dev": "nodemon src/app.ts",
-    "build": "tsc",
-    "start": "node dist/app.js",
-    "setup-db": "node scripts/setup-dynamodb.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon src/app.js",
+    "start": "node src/app.js",
+    "test": "node src/app.test.js",
+    "test:dev": "nodemon src/app.test.js",
+    "setup-db": "node scripts/setup-dynamodb.js"
   },
   "keywords": [
     "trivia",

@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { EstadisticasService, EstadisticasUsuario } from '../../servicios/estadisticas/estadisticas.service';
-import { GamingNeonBackgroundComponent } from '../gaming-neon-background/gaming-neon-background';
+import { bkgComponent } from '../background/background';
 
 interface ConfiguracionEntrenamiento {
   tematica: string;
@@ -13,7 +13,7 @@ interface ConfiguracionEntrenamiento {
 @Component({
   selector: 'app-entrenamiento',
   standalone: true,
-  imports: [FormsModule, CommonModule, GamingNeonBackgroundComponent],
+  imports: [FormsModule, CommonModule, bkgComponent],
   templateUrl: './entrenamiento.html',
   styleUrls: ['./entrenamiento.scss']
 })

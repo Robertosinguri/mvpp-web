@@ -13,19 +13,11 @@ router.get('/:userId', async (req, res) => {
   }
 });
 
-// POST /api/estadisticas/ranking/ - global ranking
-router.get('/resultado', async (req, res) => {
-  try {
-    const resultado = await estadisticasService.guardarResultado(req.body.userId, req.body);
-    res.json({ success: true, resultado });
-  } catch (error) {
-    res.status(500).json({ error: 'Error guardando resultado' });
-  }
-});
-
 // GET /api/estadisticas/ranking - ranking global
+// Nota: La lógica para esto en el servicio es un mock.
 router.get('/ranking', async (req, res) => {
   try {
+    // TODO: Implementar la lógica real en estadisticasService.js
     const ranking = await estadisticasService.obtenerRankingGlobal();
     res.json(ranking);
   } catch (error) {
@@ -35,6 +27,7 @@ router.get('/ranking', async (req, res) => {
 
 // GET /api/estadisticas/ranking/tema/:tema - Ranking por temática
 router.get('/ranking/tema/:tema', async (req, res) => {
+  // TODO: Implementar la lógica en estadisticasService.js
   try {
     const ranking = await estadisticasService.obtenerRankingPorTema(req.params.tema);
     res.json(ranking);
@@ -45,6 +38,7 @@ router.get('/ranking/tema/:tema', async (req, res) => {
 
 // GET /api/estadisticas/progreso/:userId - Progreso parcial del usuario
 router.get('/progreso/:userId', async (req, res) => {
+  // TODO: Implementar la lógica en estadisticasService.js
   try {
     const progreso = await estadisticasService.obtenerProgresoParcial(req.params.userId);
     res.json(progreso);

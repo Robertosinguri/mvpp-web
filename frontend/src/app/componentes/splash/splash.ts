@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { GamingNeonBackgroundComponent } from '../gaming-neon-background/gaming-neon-background';
+import { bkgComponent} from '../background/background';
 
 /**
 * Componente de pantalla de bienvenida (splash screen)
@@ -13,7 +13,7 @@ import { GamingNeonBackgroundComponent } from '../gaming-neon-background/gaming-
   templateUrl: './splash.html',
   styleUrls: ['./splash.scss'],
   standalone: true,
-  imports: [CommonModule, GamingNeonBackgroundComponent]
+  imports: [CommonModule, bkgComponent]
 })
 
 export class SplashComponent implements OnInit, OnDestroy {

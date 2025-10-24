@@ -5,7 +5,13 @@ const express = require('express');
 const app = express();
 
 const cors = require('cors');
-app.use(cors());
+// Para producción, es mejor ser explícito con el origen.
+// const corsOptions = {
+//   origin: 'https://tu-dominio-del-frontend.com'
+// };
+// app.use(cors(corsOptions));
+
+app.use(cors()); // Perfecto para desarrollo
 
 app.use(express.json());
 app.use('/api', require('./routes')); // rutas REST

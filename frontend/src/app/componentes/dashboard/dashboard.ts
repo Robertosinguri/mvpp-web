@@ -3,9 +3,9 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CognitoAuthService } from '../../servicios/cognitoAuth/cognito-auth.service';
-import { GamingNeonBackgroundComponent } from '../gaming-neon-background/gaming-neon-background';
+import { bkgComponent } from '../background/background';
 import { fetchUserAttributes } from 'aws-amplify/auth';
-import { GeminiService } from '../../servicios/gemini/gemini.service';
+import { EstadisticasService, EstadisticasUsuario, JugadorRanking } from '../../servicios/estadisticas/estadisticas.service';
 
 
 interface ConfiguracionJuego {
@@ -17,14 +17,15 @@ interface ConfiguracionJuego {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [FormsModule, CommonModule, GamingNeonBackgroundComponent],
+  imports: [FormsModule, CommonModule, bkgComponent],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.scss']
 })
 export class DashboardComponent implements OnInit {
   userName: string = '';
-  codigoSala: string = 'ABC123'; // Código de prueba precargado
+  codigoSala: string = ''; // Corregido: Inicializado como vacío
   showStats = false;
+  userId: string | null = null;
   userEmail = '';
   profileImage: string | null = null;
   isGeneratingAvatar = false;
@@ -37,26 +38,25 @@ export class DashboardComponent implements OnInit {
   };
   personalityText = '';
   
-  estadisticas = {
-    partidasJugadas: 12,
-    mejorPuntaje: 5,
-    promedio: 3.8,
-    posicionRanking: 47
-  };
+  estadisticas: EstadisticasUsuario | null = null;
+  rankingMinimalista: JugadorRanking[] | null = null;
 
   constructor(
     private router: Router,
-    private cognitoAuth: CognitoAuthService,
-    private geminiService: GeminiService
+    private authService: CognitoAuthService,
+    private estadisticasService: EstadisticasService
   ) {}
 
   async ngOnInit() {
-    const user = this.cognitoAuth.currentUser$();
+    const user = this.authService.currentUser$();
     if (user) {
       try {
         const attributes = await fetchUserAttributes();
+        this.userId = attributes['sub'] || null;
         this.userName = attributes.name || user.username || 'Usuario';
         this.userEmail = attributes.email || user.email || 'email@ejemplo.com';
+        this.cargarEstadisticas();
+        this.cargarRankingMinimalista();
       } catch (error) {
         this.userName = user.username || 'Usuario';
         this.userEmail = user.email || 'email@ejemplo.com';
@@ -70,6 +70,23 @@ export class DashboardComponent implements OnInit {
     } else {
       this.router.navigate(['/login']);
     }
+  }
+
+  private cargarEstadisticas(): void {
+    if (!this.userId) return;
+
+    this.estadisticasService.obtenerEstadisticasPersonales(this.userId).subscribe(stats => {
+      if (stats) {
+        this.estadisticas = stats;
+      }
+      // Opcional: manejar el caso en que no se encuentren estadísticas
+    });
+  }
+
+  private cargarRankingMinimalista(): void {
+    this.estadisticasService.obtenerRankingGlobal(3).subscribe(ranking => {
+      this.rankingMinimalista = ranking;
+    });
   }
 
   crearSala() {
@@ -160,8 +177,9 @@ export class DashboardComponent implements OnInit {
     console.log('Prompt para Gemini:', prompt);
     
     try {
-      // Llamada real a Gemini para generar avatar
-      const avatarUrl = await this.geminiService.generateAvatar(prompt);
+      // TODO: La llamada a Gemini debería estar en su propio servicio (GeminiService)
+      // const avatarUrl = await this.geminiService.generateAvatar(prompt); // Descomentar cuando el servicio esté inyectado
+      const avatarUrl = await this.generateFallbackAvatar(); // Usar fallback mientras tanto
       return avatarUrl;
     } catch (error) {
       console.error('Error generando avatar con Gemini:', error);
@@ -226,7 +244,7 @@ export class DashboardComponent implements OnInit {
 
   async logout() {
     try {
-      await this.cognitoAuth.logout();
+      await this.authService.logout();
       this.router.navigate(['/login']);
     } catch (error) {
       console.error('Error al cerrar sesión:', error);

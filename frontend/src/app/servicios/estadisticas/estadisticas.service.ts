@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
+import { environment } from '../../../environments/environments';
 import { map, catchError, switchMap } from 'rxjs/operators';
 
 export interface EstadisticasUsuario {
@@ -43,7 +44,7 @@ export interface ProgresoUsuario {
   providedIn: 'root'
 })
 export class EstadisticasService {
-  private apiUrl = 'http://localhost:3000/api/estadisticas';
+  private apiUrl = `${environment.apiUrl}/estadisticas`;
 
   constructor(private http: HttpClient) {}
 

@@ -2,7 +2,7 @@
 // Configuración DynamoDB
 // =======================
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-const { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand, UpdateCommand } = require('@aws-sdk/lib-dynamodb');
+const { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand, UpdateCommand, DeleteCommand } = require('@aws-sdk/lib-dynamodb');
 
 // Cliente DynamoDB
 const client = new DynamoDBClient({  
@@ -66,9 +66,19 @@ const actualizar = async (tabla, key, updateExpression, expressionValues) => {
   return result.Attributes;
 };
 
+// Borrar registro
+const borrar = async (tabla, key) => {
+  const command = new DeleteCommand({
+    TableName: tabla,
+    Key: key
+  });
+  return await docClient.send(command);
+};
+
 module.exports = {
   crear,
   obtenerPorId,
   consultar,
-  actualizar
+  actualizar,
+  borrar
 };

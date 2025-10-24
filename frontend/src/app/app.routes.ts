@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+//import { Routes } from '@angular/router';
 import { SplashComponent } from './componentes/splash/splash';
 import { Login } from './componentes/login/login';
 import { DashboardComponent } from './componentes/dashboard/dashboard';
@@ -7,6 +7,8 @@ import { LobbyComponent } from './componentes/lobby/lobby';
 import { EntrenamientoComponent } from './componentes/entrenamiento/entrenamiento';
 import { JuegoComponent } from './componentes/juego/juego'; 
 import { About } from './componentes/about/about';
+import { Routes } from '@angular/router';
+import { RankingComponent } from './componentes/ranking/ranking'; // Asegúrate que la ruta sea correcta
 
 export const routes: Routes = [
   // RUTA 1: La ruta raíz (la primera que se carga)
@@ -67,5 +69,11 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: '' 
-  }
+  },
+  
+  { path: 'ranking', 
+    component: RankingComponent 
+  },
+  
+
 ];

@@ -215,4 +215,20 @@ export class CognitoAuthService {
   clearError(): void {
     this.error.set(null);
   }
+
+  /**
+   * Expone la función getCurrentUser de Amplify para ser usada por otros componentes.
+   * Devuelve el objeto de usuario de Amplify.
+   */
+  public getCurrentUser() {
+    return getCurrentUser();
+  }
+
+  /**
+   * Expone la función fetchUserAttributes de Amplify.
+   * Devuelve un objeto con los atributos del usuario.
+   */
+  public getUserAttributes() {
+    return fetchUserAttributes();
+  }
 }

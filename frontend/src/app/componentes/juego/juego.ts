@@ -2,14 +2,14 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { GeminiService, Pregunta, ConfiguracionJuego } from '../../servicios/gemini/gemini';
-import { GamingNeonBackgroundComponent } from '../gaming-neon-background/gaming-neon-background';
+import { bkgComponent, } from '../background/background';
 
 type EstadoJuego = 'cargando' | 'jugando' | 'finalizado';
 
 @Component({
   selector: 'app-juego',
   standalone: true,
-  imports: [CommonModule, GamingNeonBackgroundComponent],
+  imports: [CommonModule, bkgComponent],
   templateUrl: './juego.html',
   styleUrls: ['./juego.scss']
 })

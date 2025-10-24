@@ -1,4 +1,4 @@
-<app-gaming-neon-background></app-gaming-neon-background>
+<background></background>
 <div class="dashboard-container">
   <header class="dashboard-header">
     <div class="profile-section">
@@ -58,22 +58,22 @@
           
           <div class="stat-item">
             <span class="stat-label">Partidas jugadas:</span>
-            <span class="stat-value">{{estadisticas.partidasJugadas}}</span>
+            <span class="stat-value">{{estadisticas?.partidasJugadas || 0}}</span>
           </div>
           
           <div class="stat-item">
             <span class="stat-label">Mejor puntaje:</span>
-            <span class="stat-value highlight">{{estadisticas.mejorPuntaje}}/5</span>
+            <span class="stat-value highlight">{{estadisticas?.mejorPuntaje || 0}}/5</span>
           </div>
           
           <div class="stat-item">
             <span class="stat-label">Promedio:</span>
-            <span class="stat-value">{{estadisticas.promedio}}/5</span>
+            <span class="stat-value">{{estadisticas?.promedio || 0}}/5</span>
           </div>
           
           <div class="stat-item">
             <span class="stat-label">Posición ranking:</span>
-            <span class="stat-value ranking">#{{estadisticas.posicionRanking}}</span>
+            <span class="stat-value ranking">#{{estadisticas?.posicionRanking || '-'}}</span>
           </div>
         </div>
       </div>
@@ -109,6 +109,23 @@
         <button class="primary-btn" (click)="verAbout()">Saber Más</button>
       </div>
     </div>
+
+    <!-- Ranking Minimalista -->
+    <div class="mini-ranking">
+      <h3>🏆 Top 3 Jugadores</h3>
+      <ol class="mini-ranking-list">
+        <li *ngFor="let jugador of rankingMinimalista">
+          <span class="ranking-pos">#{{jugador.posicion}}</span>
+          <span class="ranking-name">{{jugador.nombre}}</span>
+          <span class="ranking-score">{{jugador.puntajeTotal}} pts</span>
+        </li>
+        <li *ngIf="!rankingMinimalista || rankingMinimalista.length === 0" class="no-data">
+          Aún no hay datos de ranking.
+        </li>
+      </ol>
+      <a href="#" (click)="navegarA('ranking')" class="ver-mas">Ver ranking completo...</a>
+    </div>
+
   </main>
     </div>
   </div>

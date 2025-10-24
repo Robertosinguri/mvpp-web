@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { GamingNeonBackgroundComponent } from '../gaming-neon-background/gaming-neon-background';
+import { bkgComponent } from '../background/background'; // La ruta ya era correcta, solo se asegura que el componente exista
+import { RoomsService } from '../../servicios/salas/rooms.service';
+import { CognitoAuthService } from '../../servicios/cognitoAuth/cognito-auth.service';
 
 interface ConfiguracionJugador {
   tematica: string;
@@ -26,11 +28,12 @@ interface InfoSalaExistente {
 @Component({
   selector: 'app-configurar-sala',
   standalone: true,
-  imports: [FormsModule, CommonModule, GamingNeonBackgroundComponent],
+  imports: [FormsModule, CommonModule, bkgComponent], // Ahora BackgroundComponent será reconocido
   templateUrl: './configurar-sala.html',
   styleUrls: ['./configurar-sala.scss']
 })
 export class ConfigurarSalaComponent implements OnInit {
+  isLoading = false;
   configuracion: ConfiguracionJugador = {
     tematica: '',
     dificultad: '',
@@ -49,7 +52,9 @@ export class ConfigurarSalaComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private roomsService: RoomsService,
+    private authService: CognitoAuthService
   ) {}
 
   ngOnInit() {
@@ -106,25 +111,42 @@ export class ConfigurarSalaComponent implements OnInit {
     }
   }
 
-  crearSala() {
-    if (!this.esConfiguracionValida()) return;
+  async crearSala() {
+    if (!this.esConfiguracionValida() || this.isLoading) return;
 
-    // TODO: Crear sala en el backend
-    const nuevaSala = {
-      host: true,
-      configuracion: this.configuracion,
-      codigo: this.generarCodigo()
-    };
+    this.isLoading = true;
 
-    console.log('Creando sala:', nuevaSala);
-    
-    // Navegar al lobby como host
-    this.router.navigate(['/lobby'], { 
-      queryParams: { 
-        codigo: nuevaSala.codigo, 
-        host: true 
-      } 
-    });
+    try {
+      // 1. Obtener el usuario actual para saber quién es el host
+      const user = await this.authService.getCurrentUser();
+      const attributes = await this.authService.getUserAttributes();
+      if (!user || !attributes['sub']) {
+        throw new Error('Usuario no autenticado. No se puede crear la sala.');
+      }
+
+      // 2. Preparar los datos para enviar al backend
+      const roomData = {
+        nombre: `${user.username}'s Game`, // O un nombre que el usuario pueda introducir
+        maxJugadores: this.configuracion.jugadores!,
+        host: {
+          id: attributes['sub'],
+          nombre: user.username
+        }
+      };
+
+      // 3. Llamar al servicio para crear la sala
+      this.roomsService.createRoom(roomData).subscribe(response => {
+        if (response.success) {
+          // 4. Navegar al lobby con el código REAL devuelto por el backend
+          this.router.navigate(['/lobby'], { 
+            queryParams: { codigo: response.roomCode, host: true } 
+          });
+        }
+      });
+    } catch (error) {
+      console.error('Error al crear la sala:', error);
+      this.isLoading = false;
+    }
   }
 
   confirmarConfiguracion() {
@@ -142,60 +164,30 @@ export class ConfigurarSalaComponent implements OnInit {
     });
   }
 
-  private generarCodigo(): string {
-    return Math.random().toString(36).substring(2, 8).toUpperCase();
-  }
-
   seleccionarSugerencia(sugerencia: string) {
     this.configuracion.tematica = sugerencia;
   }
 
   cargarInfoSala() {
-    // Simular diferentes salas según el código
-    const salasPrueba: { [key: string]: InfoSalaExistente } = {
-      'ABC123': {
-        codigo: 'ABC123',
-        host: 'Carlos',
-        jugadoresActuales: 2,
-        maxJugadores: 4,
-        jugadores: [
-          { nombre: 'Carlos', tematica: 'deportes', dificultad: 'conocedor', esHost: true },
-          { nombre: 'Ana', tematica: 'cocina', dificultad: 'baby', esHost: false }
-        ]
+    if (!this.codigoSala) return;
+
+    this.roomsService.getRoom(this.codigoSala).subscribe({
+      next: (sala) => {
+        const host = sala.jugadores.find(j => j.esHost);
+        this.infoSalaExistente = {
+          codigo: sala.id,
+          host: host ? host.nombre : 'Desconocido',
+          jugadoresActuales: sala.jugadores.length,
+          maxJugadores: sala.maxJugadores,
+          jugadores: sala.jugadores.map(j => ({ 
+            ...j, 
+            tematica: j.tematica || '', // Aseguramos que tematica sea siempre un string
+            dificultad: j.dificultad || '' // Aseguramos que dificultad sea siempre un string
+          }))
+        };
       },
-      'XYZ789': {
-        codigo: 'XYZ789',
-        host: 'María',
-        jugadoresActuales: 3,
-        maxJugadores: 4,
-        jugadores: [
-          { nombre: 'María', tematica: 'historia', dificultad: 'killer', esHost: true },
-          { nombre: 'Pedro', tematica: 'tecnología', dificultad: 'conocedor', esHost: false },
-          { nombre: 'Luis', tematica: 'música', dificultad: 'baby', esHost: false }
-        ]
-      },
-      'TEST01': {
-        codigo: 'TEST01',
-        host: 'Sofia',
-        jugadoresActuales: 1,
-        maxJugadores: 3,
-        jugadores: [
-          { nombre: 'Sofia', tematica: 'arte', dificultad: 'conocedor', esHost: true }
-        ]
-      },
-      'DEMO99': {
-        codigo: 'DEMO99',
-        host: 'Alex',
-        jugadoresActuales: 2,
-        maxJugadores: 2,
-        jugadores: [
-          { nombre: 'Alex', tematica: 'ciencia', dificultad: 'killer', esHost: true },
-          { nombre: 'Emma', tematica: 'literatura', dificultad: 'conocedor', esHost: false }
-        ]
-      }
-    };
-    
-    this.infoSalaExistente = salasPrueba[this.codigoSala] || salasPrueba['ABC123'];
+      error: (err) => console.error('Error al cargar la información de la sala:', err)
+    });
   }
 
   volver() {

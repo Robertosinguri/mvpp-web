@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test WebSocket - MVPP Backend</title>
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Test WebSocket - MVPP Backend</h1>
+    <div id="status">Conectando...</div>
+    <div id="messages"></div>
+    
+    <button onclick="joinRoom()">Unirse a Sala</button>
+    <button onclick="leaveRoom()">Salir de Sala</button>
+    
+    <script>
+        const socket = io('http://localhost:3003');
+        
+        socket.on('connect', () => {
+            document.getElementById('status').innerHTML = '✅ Conectado al servidor';
+            addMessage('Conectado al servidor WebSocket');
+        });
+        
+        socket.on('disconnect', () => {
+            document.getElementById('status').innerHTML = '❌ Desconectado del servidor';
+            addMessage('Desconectado del servidor');
+        });
+        
+        socket.on('user-joined', (data) => {
+            addMessage('Usuario se unió: ' + JSON.stringify(data));
+        });
+        
+        socket.on('user-left', (data) => {
+            addMessage('Usuario salió: ' + JSON.stringify(data));
+        });
+        
+        function joinRoom() {
+            socket.emit('join-room', {
+                roomCode: 'TEST123',
+                userId: 'test-user-' + Date.now()
+            });
+            addMessage('Intentando unirse a sala TEST123');
+        }
+        
+        function leaveRoom() {
+            socket.emit('leave-room', {
+                roomCode: 'TEST123',
+                userId: 'test-user'
+            });
+            addMessage('Intentando salir de sala TEST123');
+        }
+        
+        function addMessage(message) {
+            const div = document.createElement('div');
+            div.innerHTML = new Date().toLocaleTimeString() + ': ' + message;
+            document.getElementById('messages').appendChild(div);
+        }
+    </script>
+</body>
+</html>
