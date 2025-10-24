@@ -12,7 +12,7 @@
         <p>Configura tu sesión de entrenamiento personalizada con IA</p>
       </div>
 
-      <div>
+      <div class="config-form">
         <div class="input-group">
           <label>Tu Temática de Expertise</label>
           <p class="help-text">Máximo 3 palabras para preguntas precisas de IA</p>
@@ -82,51 +82,6 @@
             🚀 Comenzar Entrenamiento
           </button>
         </div>
-      </div>
-    </div>
-
-    <div class="stats-panel">
-      <h3>📊 Tu Progreso</h3>
-      
-      <div class="stat-item">
-        <span class="stat-label">Partidas jugadas:</span>
-        <span class="stat-value">{{estadisticas.partidasJugadas}}</span>
-      </div>
-      
-      <div class="stat-item">
-        <span class="stat-label">Mejor puntaje:</span>
-        <span class="stat-value highlight">{{estadisticas.mejorPuntaje}}/5</span>
-      </div>
-      
-      <div class="stat-item">
-        <span class="stat-label">Promedio:</span>
-        <span class="stat-value">{{estadisticas.promedio}}/5</span>
-      </div>
-      
-      <div class="stat-item">
-        <span class="stat-label">Posición ranking:</span>
-        <span class="stat-value ranking">#{{estadisticas.posicionRanking}}</span>
-      </div>
-
-      <div class="recent-topics" *ngIf="estadisticas.temasRecientes.length > 0">
-        <h4>🎯 Temas recientes</h4>
-        <div class="topic-tags">
-          <span 
-            class="topic-tag" 
-            *ngFor="let tema of estadisticas.temasRecientes">
-            {{tema}}
-          </span>
-        </div>
-      </div>
-
-      <div class="training-benefits">
-        <h4>💪 Beneficios del Entrenamiento</h4>
-        <ul>
-          <li>Mejora tu posición en el ranking</li>
-          <li>Practica sin presión social</li>
-          <li>Descubre nuevas temáticas</li>
-          <li>Perfecciona tu estrategia</li>
-        </ul>
       </div>
     </div>
   </main>
