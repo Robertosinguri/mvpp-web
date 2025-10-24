@@ -45,6 +45,11 @@
     }
   }
 
+.config-form {
+  @extend %content-panel;
+  padding: 2rem;
+}
+
 .input-group {
   margin-bottom: 2rem;
 

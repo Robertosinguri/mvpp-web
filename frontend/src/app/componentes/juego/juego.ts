@@ -107,6 +107,7 @@ export class JuegoComponent implements OnInit, OnDestroy {
     this.limpiarTimer();
     this.timerInterval = setInterval(() => {
       this.tiempoRestante--;
+      this.cdr.detectChanges();
       
       if (this.tiempoRestante <= 0) {
         this.tiempoAgotado();
