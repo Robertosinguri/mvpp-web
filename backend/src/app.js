@@ -5,6 +5,7 @@ const express = require('express');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
+const { verificarYCrearTablas } = require('./services/autoInitTables');
 
 const app = express();
 const server = createServer(app);
@@ -56,9 +57,14 @@ io.on('connection', (socket) => {
 });
 
 // =======================
-// Inicio del servidor
+// Inicio del servidor con auto-inicialización
 // =======================
 const PORT = 3000;
-server.listen(PORT, () => {
-  console.log(`Servidor de MVPP WEB corriendo en puerto ${PORT}`);
+server.listen(PORT, async () => {
+  console.log(`🚀 Servidor TRIVIA WAR iniciado en puerto ${PORT}`);
+  
+  // Auto-inicializar tablas DynamoDB
+  await verificarYCrearTablas();
+  
+  console.log(`🎮 TRIVIA WAR listo en http://localhost:${PORT}`);
 });

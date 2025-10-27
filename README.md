@@ -172,13 +172,7 @@ cd backend
 npm install
 npm run dev
 # http://localhost:3000
-```
-
-### Base de Datos (DynamoDB)
-```bash
-cd backend
-npm run setup-db
-# Inicializa las tablas en DynamoDB
+# Las tablas DynamoDB se crean automáticamente al iniciar
 ```
 
 ## 🛠️ Stack Tecnológico
@@ -354,11 +348,8 @@ Dashboard → Generador Avatar → Preguntas IA → Avatar Personalizado
 # Terminal 1 - Frontend
 cd frontend && npm install && ng serve
 
-# Terminal 2 - Backend  
+# Terminal 2 - Backend (auto-inicializa tablas DynamoDB)
 cd backend && npm install && npm run dev
-
-# Terminal 3 - Base de Datos
-cd backend && npm run setup-db
 ```
 
 ### **Producción (AWS)**
