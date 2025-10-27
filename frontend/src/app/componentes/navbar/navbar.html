@@ -1,0 +1,55 @@
+<header class="dashboard-header">
+  <div class="profile-section">
+    <div class="profile-avatar" (click)="toggleStats()">
+      <div class="avatar-circle">👤</div>
+    </div>
+  </div>
+  <h1>TRIVIA WAR</h1>
+  <nav class="main-menu">
+    <ul class="menu-list">
+      <li><a routerLink="/dashboard" routerLinkActive="active" class="menu-item">Dashboard</a></li>
+      <li><a routerLink="/ranking" routerLinkActive="active" class="menu-item">Ranking</a></li>
+      <li><a routerLink="/about" routerLinkActive="active" class="menu-item">About</a></li>
+    </ul>
+  </nav>
+  <div class="user-info">
+    <span>{{getUserName()}}</span>
+    <button class="logout-btn" (click)="logout()">Salir</button>
+  </div>
+</header>
+
+<div class="navbar-content">
+  <div class="profile-dropdown" [class.open]="showStats">
+    <div class="stats-panel">
+      <div class="user-email">
+        <span class="email-text">{{getUserEmail()}}</span>
+      </div>
+      
+      <div class="stats-info">
+        <h4>📊 Estadísticas</h4>
+        
+        <div class="stat-item">
+          <span class="stat-label">Partidas jugadas:</span>
+          <span class="stat-value">{{estadisticas?.partidasJugadas || 0}}</span>
+        </div>
+        
+        <div class="stat-item">
+          <span class="stat-label">Mejor puntaje:</span>
+          <span class="stat-value highlight">{{estadisticas?.mejorPuntaje || 0}}/5</span>
+        </div>
+        
+        <div class="stat-item">
+          <span class="stat-label">Promedio:</span>
+          <span class="stat-value">{{estadisticas?.promedio || 0}}/5</span>
+        </div>
+        
+        <div class="stat-item">
+          <span class="stat-label">Posición ranking:</span>
+          <span class="stat-value ranking">#{{estadisticas?.posicionRanking || '-'}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <ng-content></ng-content>
+</div>

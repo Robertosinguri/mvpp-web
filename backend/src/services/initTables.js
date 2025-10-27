@@ -51,6 +51,19 @@ const tablas = [
       { AttributeName: 'userId', KeyType: 'HASH' }
     ],
     BillingMode: 'PAY_PER_REQUEST'
+  },
+
+  {
+    TableName: 'mvpp-resultados-partida',
+    AttributeDefinitions: [
+      { AttributeName: 'roomCode', AttributeType: 'S' },
+      { AttributeName: 'userId', AttributeType: 'S' }
+    ],
+    KeySchema: [
+      { AttributeName: 'roomCode', KeyType: 'HASH' },
+      { AttributeName: 'userId', KeyType: 'RANGE' }
+    ],
+    BillingMode: 'PAY_PER_REQUEST'
   }
   
 ];

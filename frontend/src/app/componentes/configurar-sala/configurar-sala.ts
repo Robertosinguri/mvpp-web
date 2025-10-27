@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { bkgComponent } from '../background/background'; // La ruta ya era correcta, solo se asegura que el componente exista
+import { bkgComponent } from '../background/background';
 import { RoomsService } from '../../servicios/salas/rooms.service';
 import { CognitoAuthService } from '../../servicios/cognitoAuth/cognito-auth.service';
+import { WebSocketService } from '../../servicios/websocket/websocket.service';
 
 interface ConfiguracionJugador {
   tematica: string;
@@ -32,7 +33,7 @@ interface InfoSalaExistente {
   templateUrl: './configurar-sala.html',
   styleUrls: ['./configurar-sala.scss']
 })
-export class ConfigurarSalaComponent implements OnInit {
+export class ConfigurarSalaComponent implements OnInit, OnDestroy {
   isLoading = false;
   configuracion: ConfiguracionJugador = {
     tematica: '',
@@ -49,22 +50,53 @@ export class ConfigurarSalaComponent implements OnInit {
   ];
   
   infoSalaExistente?: InfoSalaExistente;
+  jugadoresEnTiempoReal: Array<{
+    nombre: string;
+    tematica: string;
+    dificultad: string;
+    esHost: boolean;
+    configurado: boolean;
+  }> = [];
+  currentUserId: string = '';
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private roomsService: RoomsService,
-    private authService: CognitoAuthService
+    private authService: CognitoAuthService,
+    private webSocketService: WebSocketService,
+    private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
+    // Obtener usuario actual
+    try {
+      const user = await this.authService.getCurrentUser();
+      const attributes = await this.authService.getUserAttributes();
+      this.currentUserId = attributes['sub'] || '';
+    } catch (error) {
+      console.error('Error obteniendo usuario:', error);
+      this.router.navigate(['/login']);
+      return;
+    }
+
     // Determinar si es host o invitado basado en la ruta
     this.esHost = this.router.url.includes('crear');
     
-    // Si es invitado, obtener código de sala de los parámetros
-    if (!this.esHost) {
+    if (this.esHost) {
+      // Generar código de vista previa para mostrar en la UI
+      this.codigoSala = this.generatePreviewCode();
+    } else {
+      // Si es invitado, obtener código de sala de los parámetros
       this.codigoSala = this.route.snapshot.queryParams['codigo'] || '';
       this.cargarInfoSala();
+      this.conectarWebSocket();
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.codigoSala && this.currentUserId) {
+      this.webSocketService.leaveRoom(this.codigoSala, this.currentUserId);
     }
   }
 
@@ -112,56 +144,104 @@ export class ConfigurarSalaComponent implements OnInit {
   }
 
   async crearSala() {
+    console.log('=== CREAR SALA INICIADO ===');
+    console.log('Configuración válida:', this.esConfiguracionValida());
+    console.log('isLoading:', this.isLoading);
+    
+    if (!this.esConfiguracionValida() || this.isLoading) return;
+
+    this.isLoading = true;
+    console.log('Obteniendo usuario...');
+
+    try {
+      const user = await this.authService.getCurrentUser();
+      const attributes = await this.authService.getUserAttributes();
+      if (!user || !attributes['sub']) {
+        throw new Error('Usuario no autenticado');
+      }
+
+      const roomData = {
+        nombre: `${user.username}'s Game`,
+        maxJugadores: this.configuracion.jugadores!,
+        host: {
+          id: attributes['sub'],
+          nombre: user.username,
+          tematica: this.configuracion.tematica.trim(),
+          dificultad: this.configuracion.dificultad
+        }
+      };
+
+      this.roomsService.createRoom(roomData).subscribe({
+        next: (response) => {
+          console.log('Respuesta crear sala:', response);
+          if (response.success) {
+            console.log('Navegando al lobby con código:', response.roomCode);
+            this.router.navigate(['/lobby'], {
+              queryParams: {
+                codigo: response.roomCode,
+                host: 'true'
+              }
+            }).then(success => {
+              console.log('Navegación exitosa:', success);
+            }).catch(error => {
+              console.error('Error en navegación:', error);
+            });
+          } else {
+            console.error('Error en respuesta:', response);
+          }
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Error HTTP crear sala:', err);
+          this.isLoading = false;
+        }
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      this.isLoading = false;
+    }
+  }
+
+  async confirmarConfiguracion() {
     if (!this.esConfiguracionValida() || this.isLoading) return;
 
     this.isLoading = true;
 
     try {
-      // 1. Obtener el usuario actual para saber quién es el host
       const user = await this.authService.getCurrentUser();
       const attributes = await this.authService.getUserAttributes();
       if (!user || !attributes['sub']) {
-        throw new Error('Usuario no autenticado. No se puede crear la sala.');
+        throw new Error('Usuario no autenticado');
       }
 
-      // 2. Preparar los datos para enviar al backend
-      const roomData = {
-        nombre: `${user.username}'s Game`, // O un nombre que el usuario pueda introducir
-        maxJugadores: this.configuracion.jugadores!,
-        host: {
-          id: attributes['sub'],
-          nombre: user.username
-        }
+      const jugadorData = {
+        id: attributes['sub'],
+        nombre: user.username,
+        tematica: this.configuracion.tematica.trim(),
+        dificultad: this.configuracion.dificultad
       };
 
-      // 3. Llamar al servicio para crear la sala
-      this.roomsService.createRoom(roomData).subscribe(response => {
-        if (response.success) {
-          // 4. Navegar al lobby con el código REAL devuelto por el backend
-          this.router.navigate(['/lobby'], { 
-            queryParams: { codigo: response.roomCode, host: true } 
-          });
+      this.roomsService.joinRoom(this.codigoSala, jugadorData).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.router.navigate(['/lobby'], {
+              queryParams: {
+                codigo: this.codigoSala,
+                host: 'false'
+              }
+            });
+          }
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Error:', err);
+          this.isLoading = false;
         }
       });
     } catch (error) {
-      console.error('Error al crear la sala:', error);
+      console.error('Error:', error);
       this.isLoading = false;
     }
-  }
-
-  confirmarConfiguracion() {
-    if (!this.esConfiguracionValida()) return;
-
-    // TODO: Enviar configuración al backend
-    console.log('Configuración del invitado:', this.configuracion);
-    
-    // Navegar al lobby como invitado
-    this.router.navigate(['/lobby'], { 
-      queryParams: { 
-        codigo: this.codigoSala, 
-        host: false 
-      } 
-    });
   }
 
   seleccionarSugerencia(sugerencia: string) {
@@ -193,4 +273,41 @@ export class ConfigurarSalaComponent implements OnInit {
   volver() {
     this.router.navigate(['/dashboard']);
   }
+
+  private generatePreviewCode(): string {
+    return Math.random().toString(36).substring(2, 8).toUpperCase();
+  }
+
+  private conectarWebSocket(): void {
+    if (this.codigoSala && this.currentUserId) {
+      this.webSocketService.joinRoom(this.codigoSala, this.currentUserId);
+      
+      this.webSocketService.onUserJoined().subscribe(() => {
+        this.cargarInfoSala();
+      });
+      
+      this.webSocketService.onUserLeft().subscribe(() => {
+        this.cargarInfoSala();
+      });
+      
+      this.webSocketService.onUserConfigured().subscribe(() => {
+        this.cargarInfoSala();
+      });
+    }
+  }
+
+  copiado = false;
+
+  copiarCodigo() {
+    navigator.clipboard.writeText(this.codigoSala).then(() => {
+      console.log('Código copiado:', this.codigoSala);
+      this.copiado = true;
+      this.cdr.detectChanges();
+    }).catch(err => {
+      console.error('Error al copiar:', err);
+    });
+  }
+
+  // Método eliminado: iniciarJuego() - obsoleto
+  // El flujo correcto es: ConfigurarSala → Lobby → Arena
 }

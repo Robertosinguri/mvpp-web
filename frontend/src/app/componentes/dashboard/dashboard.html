@@ -1,83 +1,6 @@
 <background></background>
 <div class="dashboard-container">
-  <header class="dashboard-header">
-    <div class="profile-section">
-      <div class="profile-avatar" (click)="toggleStats()">
-        <div class="avatar-circle" *ngIf="!profileImage">Mi Perfil</div>
-        <img *ngIf="profileImage" [src]="profileImage" alt="Avatar" class="avatar-image">
-      </div>
-    </div>
-    <h1>MVPP Trivia</h1>
-    <nav class="main-menu">
-      <ul class="menu-list">
-        <li><a href="#" (click)="navegarA('dashboard')" class="menu-item active">Dashboard</a></li>
-        <li><a href="#" (click)="navegarA('ranking')" class="menu-item">Ranking</a></li>
-      </ul>
-    </nav>
-    <div class="user-info">
-      <span>Bienvenido, {{userName}}</span>
-      <button class="logout-btn" (click)="logout()">Salir</button>
-    </div>
-  </header>
-
-  <div class="dashboard-content">
-    <div class="profile-dropdown" [class.open]="showStats">
-      <div class="stats-panel">
-        <div class="profile-info">
-          <h4>👤 Perfil</h4>
-          
-          <div class="avatar-section">
-            <div class="current-avatar" *ngIf="profileImage; else noAvatar">
-              <img [src]="profileImage" alt="Avatar" class="profile-image">
-            </div>
-            <ng-template #noAvatar>
-              <div class="no-avatar">
-                <span class="avatar-placeholder">👤</span>
-              </div>
-            </ng-template>
-            
-            <div class="avatar-actions">
-              <input type="file" #fileInput (change)="onImageSelected($event)" accept="image/*" style="display: none">
-              <button class="upload-btn" (click)="fileInput.click()">📷 Subir Imagen</button>
-              <button class="generate-btn" (click)="openAvatarGenerator()">✨ Generar Avatar</button>
-            </div>
-          </div>
-          
-          <div class="profile-detail">
-            <span class="profile-label">Nombre:</span>
-            <span class="profile-value">{{userName}}</span>
-          </div>
-          <div class="profile-detail">
-            <span class="profile-label">Email:</span>
-            <span class="profile-value">{{userEmail}}</span>
-          </div>
-        </div>
-        
-        <div class="stats-info">
-          <h4>📊 Tu Progreso</h4>
-          
-          <div class="stat-item">
-            <span class="stat-label">Partidas jugadas:</span>
-            <span class="stat-value">{{estadisticas?.partidasJugadas || 0}}</span>
-          </div>
-          
-          <div class="stat-item">
-            <span class="stat-label">Mejor puntaje:</span>
-            <span class="stat-value highlight">{{estadisticas?.mejorPuntaje || 0}}/5</span>
-          </div>
-          
-          <div class="stat-item">
-            <span class="stat-label">Promedio:</span>
-            <span class="stat-value">{{estadisticas?.promedio || 0}}/5</span>
-          </div>
-          
-          <div class="stat-item">
-            <span class="stat-label">Posición ranking:</span>
-            <span class="stat-value ranking">#{{estadisticas?.posicionRanking || '-'}}</span>
-          </div>
-        </div>
-      </div>
-    </div>
+  <app-navbar>
     <main class="dashboard-main">
     <div class="game-options">
       <div class="option-card create-room">
@@ -91,10 +14,18 @@
         <p>Únete a una partida existente</p>
         <input 
           type="text" 
-          placeholder="Código de sala" 
+          placeholder="Ej: ABC123" 
           [(ngModel)]="codigoSala"
-          class="room-input">
-        <button class="secondary-btn" (click)="unirseASala()">Unirse</button>
+          (input)="validarCodigoSala()"
+          [class.error]="!codigoSalaValido"
+          class="room-input"
+          maxlength="6">
+        <div class="validation-message" *ngIf="!codigoSalaValido">
+          ⚠️ El código debe tener 6 caracteres (letras y números)
+        </div>
+        <button class="secondary-btn" 
+                [disabled]="!codigoSalaValido || !codigoSala.trim()" 
+                (click)="unirseASala()">Unirse</button>
       </div>
 
       <div class="option-card training-room">
@@ -103,11 +34,7 @@
         <button class="training-btn" (click)="iniciarEntrenamiento()">Entrenar</button>
       </div>
 
-      <div class="option-card create-room">
-        <h2>Sobre Trivia War</h2>
-        <p>Nuestro lore: batallas épicas, pero con datos.</p>
-        <button class="primary-btn" (click)="verAbout()">Saber Más</button>
-      </div>
+
     </div>
 
     <!-- Ranking Minimalista -->
@@ -119,91 +46,13 @@
           <span class="ranking-name">{{jugador.nombre}}</span>
           <span class="ranking-score">{{jugador.puntajeTotal}} pts</span>
         </li>
-        <li *ngIf="!rankingMinimalista || rankingMinimalista.length === 0" class="no-data">
+        <li *ngIf="rankingMinimalista !== null && rankingMinimalista.length === 0" class="no-data">
           Aún no hay datos de ranking.
         </li>
       </ol>
-      <a href="#" (click)="navegarA('ranking')" class="ver-mas">Ver ranking completo...</a>
+      <a routerLink="/ranking" class="ver-mas">Ver ranking completo...</a>
     </div>
 
   </main>
-    </div>
-  </div>
-
-  <!-- Modal Generador de Avatar -->
-  <div class="avatar-modal" *ngIf="showAvatarGenerator" (click)="closeAvatarGenerator()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>✨ Generador de Avatar IA</h3>
-        <button class="close-btn" (click)="closeAvatarGenerator()">×</button>
-      </div>
-      
-      <div class="modal-body">
-        <p>Modal funcionando! showAvatarGenerator: {{showAvatarGenerator}}</p>
-        <div class="question" *ngIf="currentQuestion === 1">
-          <h4>🎨 ¿Qué estilo prefieres?</h4>
-          <div class="options">
-            <button class="option-btn" (click)="selectAnswer('style', 'anime')">👺 Anime</button>
-            <button class="option-btn" (click)="selectAnswer('style', 'cartoon')">🤡 Caricatura</button>
-            <button class="option-btn" (click)="selectAnswer('style', 'comic')">🦸 Cómic</button>
-          </div>
-        </div>
-        
-        <!-- Pregunta específica para Anime -->
-        <div class="question" *ngIf="currentQuestion === 2 && avatarAnswers.style === 'anime'">
-          <h4>🌸 ¿Qué género de anime prefieres?</h4>
-          <div class="options">
-            <button class="option-btn" (click)="selectAnswer('character', 'shonen')">⚔️ Shonen (Acción)</button>
-            <button class="option-btn" (click)="selectAnswer('character', 'shoujo')">🌸 Shoujo (Romance)</button>
-            <button class="option-btn" (click)="selectAnswer('character', 'seinen')">🔮 Seinen (Maduro)</button>
-          </div>
-        </div>
-        
-        <!-- Pregunta específica para Caricatura -->
-        <div class="question" *ngIf="currentQuestion === 2 && avatarAnswers.style === 'cartoon'">
-          <h4>📺 ¿Qué tipo de caricatura te gusta?</h4>
-          <div class="options">
-            <button class="option-btn" (click)="selectAnswer('character', 'classic')">🎭 Clásica (Disney/Warner)</button>
-            <button class="option-btn" (click)="selectAnswer('character', 'modern')">📺 Moderna (CN/Nick)</button>
-            <button class="option-btn" (click)="selectAnswer('character', 'adult')">😂 Adultos (Simpsons/Family Guy)</button>
-          </div>
-        </div>
-        
-        <!-- Pregunta específica para Cómic -->
-        <div class="question" *ngIf="currentQuestion === 2 && avatarAnswers.style === 'comic'">
-          <h4>🦸 ¿Qué universo de cómics prefieres?</h4>
-          <div class="options">
-            <button class="option-btn" (click)="selectAnswer('character', 'dc')">🦸 DC Comics</button>
-            <button class="option-btn" (click)="selectAnswer('character', 'marvel')">🕷️ Marvel</button>
-            <button class="option-btn" (click)="selectAnswer('character', 'indie')">🎨 Independientes</button>
-          </div>
-        </div>
-        
-        <div class="question" *ngIf="currentQuestion === 3">
-          <h4>🎨 ¿Qué quieres que aparezca en tu avatar?</h4>
-          <p class="question-subtitle">Describe exactamente lo que quieres ver en la imagen</p>
-          <div class="text-input-section">
-            <textarea 
-              [(ngModel)]="personalityText" 
-              placeholder="Ej: un gato con gafas de sol, una espada brillante, cabello azul, ojos rojos, una capa negra..."
-              class="personality-input"
-              rows="4"
-              maxlength="200">
-            </textarea>
-            <div class="char-counter">{{personalityText.length}}/200</div>
-            <button 
-              class="generate-final-btn" 
-              [disabled]="personalityText.trim().length < 10"
-              (click)="generateAvatarFromAnswers()">
-              ✨ Generar Avatar
-            </button>
-          </div>
-        </div>
-        
-        <div class="generating" *ngIf="isGeneratingAvatar">
-          <div class="loading-spinner"></div>
-          <p>Generando tu avatar personalizado...</p>
-        </div>
-      </div>
-    </div>
-  </div>
+  </app-navbar>
+</div>

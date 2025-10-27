@@ -48,8 +48,15 @@ export class EstadisticasService {
 
   constructor(private http: HttpClient) {}
 
-  obtenerEstadisticasPersonales(userId: string): Observable<EstadisticasUsuario | null> {
-    return this.http.get<EstadisticasUsuario>(`${this.apiUrl}/${userId}`).pipe(
+  obtenerEstadisticasPersonales(userId: string, username?: string): Observable<EstadisticasUsuario | null> {
+    let url = `${this.apiUrl}/${userId}`;
+    if (username) {
+      url += `?username=${encodeURIComponent(username)}`;
+    }
+    
+    console.log('📊 Obteniendo estadísticas:', { userId, username, url });
+    
+    return this.http.get<EstadisticasUsuario>(url).pipe(
       catchError(error => {
         console.error('Error al obtener estadísticas personales:', error);
         return of(null);
@@ -58,9 +65,15 @@ export class EstadisticasService {
   }
 
   obtenerRankingGlobal(limite: number = 10): Observable<JugadorRanking[] | null> {
-    return this.http.get<JugadorRanking[]>(`${this.apiUrl}/ranking?limite=${limite}`).pipe(
+    const url = `${this.apiUrl}/ranking?limite=${limite}`;
+    console.log('🚀 Llamando a:', url);
+    return this.http.get<JugadorRanking[]>(url).pipe(
+      map(data => {
+        console.log('📊 Respuesta del servidor:', data);
+        return data;
+      }),
       catchError(error => {
-        console.error('Error al obtener ranking global:', error);
+        console.error('❌ Error al obtener ranking global:', error);
         return of(null);
       })
     );

@@ -1,27 +1,12 @@
 // =======================
-// Configuración Express
+// Configuración Express y Socket.IO
 // =======================
 const express = require('express');
-const app = express();
-
-const cors = require('cors');
-// Para producción, es mejor ser explícito con el origen.
-// const corsOptions = {
-//   origin: 'https://tu-dominio-del-frontend.com'
-// };
-// app.use(cors(corsOptions));
-
-app.use(cors()); // Perfecto para desarrollo
-
-app.use(express.json());
-app.use('/api', require('./routes')); // rutas REST
-
-// =======================
-// Configuración Socket.IO
-// =======================
 const { createServer } = require('http');
 const { Server } = require('socket.io');
+const cors = require('cors');
 
+const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
@@ -29,6 +14,17 @@ const io = new Server(server, {
     methods: ['GET', 'POST']
   }
 });
+
+app.use(cors()); // Perfecto para desarrollo
+app.use(express.json());
+
+// Hacer io disponible para las rutas
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+app.use('/api', require('./routes')); // rutas REST
 
 // =======================
 // Lógica de WebSocket
@@ -39,6 +35,19 @@ io.on('connection', (socket) => {
   socket.on('join-room', ({ roomCode, userId }) => {
     socket.join(roomCode);
     socket.to(roomCode).emit('user-joined', { userId });
+  });
+
+  socket.on('leave-room', ({ roomCode, userId }) => {
+    socket.leave(roomCode);
+    socket.to(roomCode).emit('user-left', { userId });
+  });
+
+  socket.on('user-configured', ({ roomCode, userId }) => {
+    socket.to(roomCode).emit('user-configured', { userId });
+  });
+
+  socket.on('start-game', ({ roomCode, gameData }) => {
+    socket.to(roomCode).emit('game-started', { gameData });
   });
 
   socket.on('disconnect', () => {

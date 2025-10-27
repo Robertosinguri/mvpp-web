@@ -1,11 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { CognitoAuthService } from '../../servicios/cognitoAuth/cognito-auth.service';
 import { bkgComponent } from '../background/background';
-import { fetchUserAttributes } from 'aws-amplify/auth';
-import { EstadisticasService, EstadisticasUsuario, JugadorRanking } from '../../servicios/estadisticas/estadisticas.service';
+import { NavbarComponent } from '../navbar/navbar';
+import { EstadisticasService, JugadorRanking } from '../../servicios/estadisticas/estadisticas.service';
 
 
 interface ConfiguracionJuego {
@@ -17,75 +16,47 @@ interface ConfiguracionJuego {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [FormsModule, CommonModule, bkgComponent],
+  imports: [FormsModule, CommonModule, RouterModule, NavbarComponent, bkgComponent],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.scss']
 })
 export class DashboardComponent implements OnInit {
-  userName: string = '';
-  codigoSala: string = ''; // Corregido: Inicializado como vacío
-  showStats = false;
-  userId: string | null = null;
-  userEmail = '';
-  profileImage: string | null = null;
-  isGeneratingAvatar = false;
-  showAvatarGenerator = false;
-  currentQuestion = 1;
-  avatarAnswers = {
-    style: '',
-    character: '',
-    personality: ''
-  };
-  personalityText = '';
-  
-  estadisticas: EstadisticasUsuario | null = null;
+  codigoSala: string = '';
+  codigoSalaValido: boolean = true;
   rankingMinimalista: JugadorRanking[] | null = null;
 
   constructor(
     private router: Router,
-    private authService: CognitoAuthService,
-    private estadisticasService: EstadisticasService
+    private estadisticasService: EstadisticasService,
+    private cdr: ChangeDetectorRef
   ) {}
 
-  async ngOnInit() {
-    const user = this.authService.currentUser$();
-    if (user) {
-      try {
-        const attributes = await fetchUserAttributes();
-        this.userId = attributes['sub'] || null;
-        this.userName = attributes.name || user.username || 'Usuario';
-        this.userEmail = attributes.email || user.email || 'email@ejemplo.com';
-        this.cargarEstadisticas();
-        this.cargarRankingMinimalista();
-      } catch (error) {
-        this.userName = user.username || 'Usuario';
-        this.userEmail = user.email || 'email@ejemplo.com';
-      }
-      
-      // Cargar imagen de perfil guardada
-      const savedImage = localStorage.getItem('profileImage');
-      if (savedImage) {
-        this.profileImage = savedImage;
-      }
-    } else {
-      this.router.navigate(['/login']);
-    }
+  ngOnInit() {
+    this.cargarRankingMinimalista();
   }
 
-  private cargarEstadisticas(): void {
-    if (!this.userId) return;
 
-    this.estadisticasService.obtenerEstadisticasPersonales(this.userId).subscribe(stats => {
-      if (stats) {
-        this.estadisticas = stats;
-      }
-      // Opcional: manejar el caso en que no se encuentren estadísticas
-    });
-  }
 
   private cargarRankingMinimalista(): void {
-    this.estadisticasService.obtenerRankingGlobal(3).subscribe(ranking => {
-      this.rankingMinimalista = ranking;
+    console.log('🏠 DASHBOARD - Cargando mini ranking...');
+    
+    this.estadisticasService.obtenerRankingGlobal(3).subscribe({
+      next: (ranking) => {
+        console.log('🏠 DASHBOARD - Mini ranking recibido:', ranking);
+        this.rankingMinimalista = ranking;
+        
+        if (ranking && ranking.length > 0) {
+          console.log('✅ Mini ranking cargado correctamente:', ranking.length, 'jugadores');
+        } else {
+          console.log('⚠️ Mini ranking vacío o null');
+        }
+        
+        this.cdr.detectChanges(); // Forzar detección de cambios
+      },
+      error: (error) => {
+        console.error('❌ Error cargando mini ranking:', error);
+        this.rankingMinimalista = [];
+      }
     });
   }
 
@@ -93,161 +64,39 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/crear-sala']);
   }
 
+  validarCodigoSala() {
+    const codigo = this.codigoSala.trim().toUpperCase();
+    // Formato: 6 caracteres alfanuméricos (letras y números)
+    const formatoValido = /^[A-Z0-9]{6}$/.test(codigo);
+    this.codigoSalaValido = formatoValido || codigo === '';
+  }
+
   unirseASala() {
-    const codigo = this.codigoSala.trim();
+    const codigo = this.codigoSala.trim().toUpperCase();
     
-    if (codigo) {
-      this.router.navigate(['/unirse-sala'], { 
-        queryParams: { codigo: codigo.toUpperCase() } 
-      });
+    if (!codigo) {
+      return;
     }
+    
+    // Validar formato antes de navegar
+    if (!/^[A-Z0-9]{6}$/.test(codigo)) {
+      this.codigoSalaValido = false;
+      return;
+    }
+    
+    this.codigoSalaValido = true;
+    this.router.navigate(['/unirse-sala'], { 
+      queryParams: { codigo: codigo } 
+    });
   }
 
   iniciarEntrenamiento() {
     this.router.navigate(['/entrenamiento']);
   }
 
-  verAbout() {
-    this.router.navigate(['/about']);
-  }
-
   navegarA(ruta: string) {
     this.router.navigate([`/${ruta}`]);
   }
 
-  getInitials(): string {
-    return this.userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-  }
 
-  toggleStats() {
-    this.showStats = !this.showStats;
-  }
-
-  onImageSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.profileImage = e.target.result;
-        localStorage.setItem('profileImage', this.profileImage!);
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  openAvatarGenerator() {
-    console.log('Abriendo generador de avatar');
-    this.showAvatarGenerator = true;
-    this.currentQuestion = 1;
-    this.avatarAnswers = { style: '', character: '', personality: '' };
-    this.personalityText = '';
-    console.log('showAvatarGenerator:', this.showAvatarGenerator);
-  }
-
-  closeAvatarGenerator() {
-    this.showAvatarGenerator = false;
-  }
-
-  selectAnswer(category: string, answer: string) {
-    (this.avatarAnswers as any)[category] = answer;
-    
-    if (this.currentQuestion < 3) {
-      this.currentQuestion++;
-    }
-  }
-
-  async generateAvatarFromAnswers() {
-    this.avatarAnswers.personality = this.personalityText.trim();
-    this.isGeneratingAvatar = true;
-    try {
-      const avatarUrl = await this.generateAvatarWithGemini();
-      this.profileImage = avatarUrl;
-      localStorage.setItem('profileImage', this.profileImage);
-      this.closeAvatarGenerator();
-    } catch (error) {
-      console.error('Error generando avatar:', error);
-    } finally {
-      this.isGeneratingAvatar = false;
-    }
-  }
-
-  private async generateAvatarWithGemini(): Promise<string> {
-    // Crear prompt basado en las respuestas
-    const prompt = this.createAvatarPrompt();
-    console.log('Prompt para Gemini:', prompt);
-    
-    try {
-      // TODO: La llamada a Gemini debería estar en su propio servicio (GeminiService)
-      // const avatarUrl = await this.geminiService.generateAvatar(prompt); // Descomentar cuando el servicio esté inyectado
-      const avatarUrl = await this.generateFallbackAvatar(); // Usar fallback mientras tanto
-      return avatarUrl;
-    } catch (error) {
-      console.error('Error generando avatar con Gemini:', error);
-      // Fallback en caso de error
-      return this.generateFallbackAvatar();
-    }
-  }
-
-  private generateFallbackAvatar(): string {
-    const hash = this.hashString(this.avatarAnswers.personality);
-    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD'];
-    const bgColor = colors[hash % colors.length];
-    
-    const svg = `
-      <svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="75" cy="75" r="75" fill="${bgColor}"/>
-        <circle cx="75" cy="60" r="20" fill="#FFF"/>
-        <path d="M45 100 Q75 120 105 100" stroke="#FFF" stroke-width="4" fill="none"/>
-        <text x="75" y="130" text-anchor="middle" fill="#FFF" font-size="8" font-family="Arial">
-          ${this.avatarAnswers.style} ${this.avatarAnswers.character}
-        </text>
-      </svg>
-    `;
-    
-    return `data:image/svg+xml;base64,${btoa(svg)}`;
-  }
-
-  private createAvatarPrompt(): string {
-    const styleMap = {
-      anime: 'estilo anime japonés',
-      cartoon: 'estilo caricatura occidental',
-      comic: 'estilo cómic americano'
-    };
-    
-    const characterMap: {[key: string]: string} = {
-      // Anime
-      shonen: 'estilo shonen de acción y aventura',
-      shoujo: 'estilo shoujo romántico y emotivo',
-      seinen: 'estilo seinen maduro y complejo',
-      // Cartoon
-      classic: 'estilo cartoon clásico y nostalgico',
-      modern: 'estilo cartoon moderno y colorido',
-      adult: 'estilo cartoon para adultos y humor',
-      // Comic
-      dc: 'estilo DC Comics heroíco y épico',
-      marvel: 'estilo Marvel dinámico y moderno',
-      indie: 'estilo cómic independiente y alternativo'
-    };
-    
-    return `Crear un avatar de perfil en ${styleMap[this.avatarAnswers.style as keyof typeof styleMap]}, con ${characterMap[this.avatarAnswers.character] || 'estilo general'}, que incluya los siguientes elementos: ${this.avatarAnswers.personality}. Estilo limpio, centrado, fondo simple.`;
-  }
-
-  private hashString(str: string): number {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32bit integer
-    }
-    return Math.abs(hash);
-  }
-
-  async logout() {
-    try {
-      await this.authService.logout();
-      this.router.navigate(['/login']);
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error);
-    }
-  }
 }

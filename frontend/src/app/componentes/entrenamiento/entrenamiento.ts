@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { EstadisticasService, EstadisticasUsuario } from '../../servicios/estadisticas/estadisticas.service';
 import { bkgComponent } from '../background/background';
+import { NavbarComponent } from '../navbar/navbar';
 
 interface ConfiguracionEntrenamiento {
   tematica: string;
@@ -13,11 +13,11 @@ interface ConfiguracionEntrenamiento {
 @Component({
   selector: 'app-entrenamiento',
   standalone: true,
-  imports: [FormsModule, CommonModule, bkgComponent],
+  imports: [FormsModule, CommonModule, bkgComponent, NavbarComponent],
   templateUrl: './entrenamiento.html',
   styleUrls: ['./entrenamiento.scss']
 })
-export class EntrenamientoComponent implements OnInit {
+export class EntrenamientoComponent {
   configuracion: ConfiguracionEntrenamiento = {
     tematica: '',
     dificultad: ''
@@ -28,34 +28,9 @@ export class EntrenamientoComponent implements OnInit {
     'cine', 'tecnología', 'cocina', 'arte'
   ];
 
-  estadisticas: EstadisticasUsuario | null = null;
-
   constructor(
-    private router: Router,
-    private estadisticasService: EstadisticasService
+    private router: Router
   ) {}
-
-  ngOnInit() {
-    this.cargarEstadisticas();
-  }
-
-  cargarEstadisticas() {
-    const userId = 'user-temp-id'; // Reemplazar con ID real si tenés autenticación
-
-    this.estadisticasService.obtenerEstadisticasPersonales(userId)
-      .subscribe({
-        next: (stats) => {
-          if (stats) {
-            this.estadisticas = stats;
-          } else {
-            console.warn('No se recibieron estadísticas para el usuario.');
-          }
-        },
-        error: (error) => {
-          console.error('Error cargando estadísticas:', error);
-        }
-      });
-  }
 
   seleccionarSugerencia(sugerencia: string) {
     this.configuracion.tematica = sugerencia;
@@ -101,7 +76,5 @@ export class EntrenamientoComponent implements OnInit {
     });
   }
 
-  volver() {
-    this.router.navigate(['/dashboard']);
-  }
+
 }

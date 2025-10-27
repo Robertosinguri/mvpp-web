@@ -1,0 +1,102 @@
+<background></background>
+<div class="resultados-container">
+  <header class="resultados-header">
+    <h1>🏆 Resultados Finales</h1>
+    <div class="game-info">
+      <span class="room-code">Sala: {{roomCode}}</span>
+      <span class="tema">{{tematica}}</span>
+      <span class="dificultad dif-{{dificultad}}">{{dificultad}}</span>
+    </div>
+  </header>
+
+  <div class="resultados-grid">
+    <!-- Cuadrante 1: Ganador (Arriba Izquierda) -->
+    <div class="cuadrante ganador-cuadrante">
+      <h3>👑 Ganador</h3>
+      <div class="ganador-card">
+        <div class="corona">🥇</div>
+        <h4>{{ganador?.username || 'Cargando...'}}</h4>
+        <div class="ganador-stats">
+          <div class="stat">
+            <span class="valor">{{ganador?.puntaje || 0}}/5</span>
+            <span class="label">correctas</span>
+          </div>
+          <div class="stat">
+            <span class="valor">{{ganador?.porcentaje || 0}}%</span>
+            <span class="label">aciertos</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cuadrante 2: Ranking Partida (Arriba Derecha) -->
+    <div class="cuadrante ranking-cuadrante">
+      <h3>📊 Ranking Partida</h3>
+      <div class="ranking-list">
+        <div 
+          class="jugador-item" 
+          *ngFor="let resultado of resultados; trackBy: trackByUserId"
+          [class.mi-resultado]="resultado.username === nombreUsuarioActual">
+          
+          <span class="posicion">{{getMedalla(resultado.posicion)}}</span>
+          <span class="nombre">{{resultado.username}}</span>
+          <span class="puntaje">{{resultado.puntaje}}/5</span>
+        </div>
+        <div *ngIf="resultados.length === 0" class="loading-message">
+          Cargando ranking...
+        </div>
+      </div>
+    </div>
+
+    <!-- Cuadrante 3: Mi Rendimiento (Abajo Izquierda) -->
+    <div class="cuadrante rendimiento-cuadrante">
+      <h3>📈 Rendimiento de {{nombreUsuarioActual}}</h3>
+      <div class="mi-resultado-card">
+        <div class="posicion-info">
+          <span class="medalla">{{getMedalla(miResultado?.posicion || 1)}}</span>
+          <span class="posicion-texto">Posición #{{miResultado?.posicion || '-'}}</span>
+        </div>
+        <div class="resultado-stats">
+          <div class="stat-item">
+            <span class="numero">{{miResultado?.puntaje || 0}}/5</span>
+            <span class="descripcion">Correctas</span>
+          </div>
+          <div class="stat-item">
+            <span class="numero">{{miResultado?.porcentaje || 0}}%</span>
+            <span class="descripcion">Aciertos</span>
+          </div>
+          <div class="stat-item">
+            <span class="numero">{{formatearTiempo(miResultado?.tiempoTotal || 0)}}</span>
+            <span class="descripcion">Tiempo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cuadrante 4: Ranking Global (Abajo Derecha) -->
+    <div class="cuadrante ranking-global-cuadrante">
+      <h3>🌍 Ranking Global</h3>
+      <div class="ranking-global-list">
+        <div 
+          class="jugador-global" 
+          *ngFor="let jugador of rankingGlobal; trackBy: trackByGlobalUserId"
+          [class.mi-posicion]="jugador.esMiPosicion">
+          
+          <span class="posicion-global">#{{jugador.posicion}}</span>
+          <span class="nombre-global">{{jugador.username}}</span>
+          <span class="puntos-global">{{jugador.puntosTotales}}pts</span>
+        </div>
+        <div *ngIf="rankingGlobal.length === 0" class="loading-message">
+          Cargando ranking global...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Acciones -->
+  <div class="acciones-section">
+    <button class="btn-primary" (click)="volverAlDashboard()">
+      🏠 Volver al Dashboard
+    </button>
+  </div>
+</div>

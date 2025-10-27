@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { map, catchError, timeout, retry, delay } from 'rxjs/operators';
+import { map, catchError, timeout, retry, delay, switchMap } from 'rxjs/operators';
 
 export interface Pregunta {
   pregunta: string;
@@ -46,19 +46,42 @@ export class GeminiService {
 
   generarPreguntas(config: ConfiguracionJuego): Observable<Pregunta[]> {
     const prompt = this.construirPrompt(config);
-    return this.generateText(prompt).pipe(
+    
+    // Agregar delay inicial para evitar rate limiting
+    return of(null).pipe(
+      delay(Math.random() * 1000), // Delay aleatorio de 0-1 segundo
+      switchMap(() => this.generateText(prompt)),
       timeout(20000),
       retry({
         count: 2,
         delay: (error, retryCount) => {
           console.log(`🔄 Reintento ${retryCount}/2 - Generando preguntas con IA...`);
-          return of(error).pipe(delay(2000));
+          return of(error).pipe(delay(3000)); // Delay más largo entre reintentos
         }
       }),
       map(response => this.procesarRespuestaIA(response, config)),
       catchError(error => {
         console.error('❌ Error crítico: No se pueden generar preguntas con IA después de 3 intentos');
-        return throwError(() => new Error('Servicio de IA no disponible. Verifica tu conexión a internet.'));
+        console.error('Detalles del error:', {
+          status: error.status,
+          statusText: error.statusText,
+          message: error.message,
+          url: error.url
+        });
+        
+        let errorMessage = 'Servicio de IA no disponible.';
+        
+        if (error.status === 503) {
+          errorMessage = 'Servicio de IA temporalmente sobrecargado. Intenta en unos minutos.';
+        } else if (error.status === 429) {
+          errorMessage = 'Límite de requests excedido. Espera un momento antes de intentar nuevamente.';
+        } else if (error.status === 403) {
+          errorMessage = 'API Key inválida o sin permisos.';
+        } else if (error.status === 400) {
+          errorMessage = 'Request inválido. Verifica la configuración.';
+        }
+        
+        return throwError(() => new Error(errorMessage));
       })
     );
   }

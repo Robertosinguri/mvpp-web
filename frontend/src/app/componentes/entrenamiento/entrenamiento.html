@@ -1,12 +1,13 @@
 <background></background>
 <div class="training-container">
-  <header class="training-header">
-    <h1>🎯 Entrenamiento Individual</h1>
-    <button class="back-btn" (click)="volver()">← Volver</button>
-  </header>
-
-  <main class="training-main">
-    <div class="config-section">
+  <app-navbar>
+    <div class="training-content">
+      <div class="training-title">
+        <h1>🎯 Entrenamiento Individual</h1>
+      </div>
+      
+      <main class="training-main">
+      <div class="config-section">
       <div class="training-info">
         <h2>Practica y Mejora tu Ranking</h2>
         <p>Configura tu sesión de entrenamiento personalizada con IA</p>
@@ -85,50 +86,8 @@
       </div>
     </div>
 
-    <!-- ✅ Sección de estadísticas protegida con *ngIf -->
-    <div class="stats-panel" *ngIf="estadisticas">
-      <h3>📊 Tu Progreso</h3>
-      
-      <div class="stat-item">
-        <span class="stat-label">Partidas jugadas:</span>
-        <span class="stat-value">{{estadisticas.partidasJugadas}}</span>
-      </div>
-      
-      <div class="stat-item">
-        <span class="stat-label">Mejor puntaje:</span>
-        <span class="stat-value highlight">{{estadisticas.mejorPuntaje}}/5</span>
-      </div>
-      
-      <div class="stat-item">
-        <span class="stat-label">Promedio:</span>
-        <span class="stat-value">{{estadisticas.promedio}}/5</span>
-      </div>
-      
-      <div class="stat-item">
-        <span class="stat-label">Posición ranking:</span>
-        <span class="stat-value ranking">#{{estadisticas.posicionRanking}}</span>
-      </div>
 
-      <div class="recent-topics" *ngIf="estadisticas.temasRecientes.length > 0">
-        <h4>🎯 Temas recientes</h4>
-        <div class="topic-tags">
-          <span 
-            class="topic-tag" 
-            *ngFor="let tema of estadisticas.temasRecientes">
-            {{tema}}
-          </span>
-        </div>
-      </div>
-
-      <div class="training-benefits">
-        <h4>💪 Beneficios del Entrenamiento</h4>
-        <ul>
-          <li>Mejora tu posición en el ranking</li>
-          <li>Practica sin presión social</li>
-          <li>Descubre nuevas temáticas</li>
-          <li>Perfecciona tu estrategia</li>
-        </ul>
-      </div>
+      </main>
     </div>
-  </main>
+  </app-navbar>
 </div>

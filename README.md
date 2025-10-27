@@ -14,8 +14,10 @@ mvpp-web/
 │   │   │   ├── dashboard/       # Panel principal con widgets
 │   │   │   ├── configurar-sala/ # Crear/configurar salas
 │   │   │   ├── lobby/           # Sala de espera multijugador
-│   │   │   ├── juego/           # Motor de juego principal
-│   │   │   ├── entrenamiento/   # Modo práctica individual
+│   │   │   ├── juego/           # Modo entrenamiento individual
+│   │   │   ├── arena/           # Arena multijugador
+│   │   │   ├── entrenamiento/   # Configuración práctica
+│   │   │   ├── resultados/      # Resultados de partidas
 │   │   │   ├── about/           # Información del proyecto
 │   │   │   └── background/      # Background animado
 │   │   ├── servicios/           # Servicios centralizados
@@ -48,12 +50,14 @@ mvpp-web/
 ├─────────────────────────────────────────────────────────┤
 │ Splash → Login → Dashboard → [Crear | Unirse | Entrenar] │
 │     ↓      ↓         ↓            ↓        ↓        ↓    │
-│   Timer  Auth    Configurar → Lobby → Juego ← Entrenar    │
+│   Timer  Auth    Configurar → Lobby → Arena ← Entrenar → Juego │
 │                                                         │
 │ Servicios Implementados:                               │
 │ • CognitoAuthService (Autenticación completa)           │
 │ • GeminiService (IA para avatares y preguntas)        │
 │ • EstadisticasService (Gateway de datos)               │
+│ • WebSocketService (Tiempo real multijugador)         │
+│ • RoomsService (Gestión de salas)                     │
 └─────────────────────────────────────────────────────────┘
                             ↕ HTTP/WebSocket
 ┌─────────────────────────────────────────────────────────┐
@@ -187,32 +191,33 @@ npm run setup-db
 
 ## 📊 Estado del Desarrollo
 
-### ✅ **Frontend (Refactorizado y Conectado)**
-- **Arquitectura de Servicios:** Implementada y modular (`CognitoAuth`, `Rooms`, `Estadisticas`).
+### ✅ **Frontend (Completamente Funcional)**
+- **Arquitectura de Servicios:** Implementada y modular (`CognitoAuth`, `Rooms`, `Estadisticas`, `WebSocket`).
 - **Flujo de Autenticación:** Completo y funcional con AWS Cognito.
-- **Flujo de Salas:** El Dashboard, Configurar Sala y Lobby están conectados al backend vía HTTP.
-- **Sin Datos Hardcodeados:** Los componentes principales ahora consumen datos reales de la API.
-- **Entornos:** Configurado para desarrollo y producción (`environments`).
+- **Flujo Multijugador:** Dashboard → ConfigurarSala → Lobby → Arena completamente operativo.
+- **Componentes Especializados:** Juego (entrenamiento) y Arena (multijugador) separados.
+- **WebSocket Frontend:** Integrado para tiempo real en lobby y coordinación de partidas.
 
-### ✅ **Backend (Implementado)**
+### ✅ **Backend (Completamente Funcional)**
 - **API REST:** Rutas completas para salas, juegos y estadísticas
-- **WebSockets:** Socket.IO configurado para tiempo real
-- **Base de Datos:** Cliente DynamoDB con Tailscale
-- **Servicios:** SalasService y EstadisticasService operativos
-- **Tablas:** Scripts de inicialización de DynamoDB listos.
+- **WebSockets:** Socket.IO configurado y operativo para tiempo real
+- **Base de Datos:** Cliente DynamoDB con Tailscale funcionando
+- **Servicios:** SalasService y EstadisticasService completamente operativos
+- **Generación de Preguntas:** Endpoint para cuestionarios mixtos multijugador
 
-### 🔄 **Integración (En Progreso)**
-- **Frontend ↔ Backend (HTTP):** Conexión establecida y funcional para la gestión de salas y estadísticas.
-- **WebSockets (Pendiente):** Falta implementar la lógica en el frontend para recibir actualizaciones en tiempo real (ej. nuevos jugadores en el lobby).
-- **DynamoDB:** Persistencia de datos
-- **Testing:** Validación de funcionalidades
+### ✅ **Integración (Completada)**
+- **Frontend ↔ Backend (HTTP):** Conexión completa y funcional.
+- **WebSockets:** Implementados para actualizaciones en tiempo real del lobby.
+- **DynamoDB:** Persistencia de datos operativa
+- **Arena Multijugador:** Generación y mezcla de preguntas de múltiples jugadores
+- **Flujo Completo:** Desde creación de sala hasta juego multijugador funcionando
 
-### 📋 **Próximos Pasos**
-1. **Conectar Frontend con Backend** - Completar integración
-2. **Implementar lógica multijugador** - WebSocket handlers
-3. **Testing end-to-end** - Validar flujos completos
-4. **Completar Lógica de Juego** - Generación de preguntas con Gemini y flujo de partida.
-5. **Despliegue** - AWS App Runner
+### 🎯 **Sistema Completado**
+1. ✅ **Multijugador Completo** - Salas, lobby, arena funcionando
+2. ✅ **Tiempo Real** - WebSocket para coordinación de jugadores
+3. ✅ **Generación IA** - Preguntas mixtas con Gemini API
+4. ✅ **Persistencia** - DynamoDB operativo
+5. 📋 **Pendiente:** Despliegue en AWS App Runner
 
 ## 🎯 Características Destacadas
 
@@ -274,7 +279,7 @@ const client = new DynamoDBClient({
 - **`POST /api/rooms`** - Crear sala
 - **`GET /api/rooms/:roomCode`** - Obtener sala
 - **`POST /api/rooms/:roomCode/join`** - Unirse a sala
-- **`POST /api/games/start`** - Iniciar juego
+- **`POST /api/games/generate-questions`** - Generar cuestionario mixto
 - **`POST /api/games/save-result`** - Guardar resultado
 - **`GET /api/estadisticas/:userId`** - Estadísticas personales
 - **`GET /api/estadisticas/ranking`** - Ranking global
@@ -288,8 +293,8 @@ Splash (3s) → Login → Registro/Confirmación → Dashboard
 
 ### **2. Modo Multijugador**
 ```
-Dashboard → Crear Sala → Lobby → Juego → Resultados
-Dashboard → Unirse Sala → Lobby → Juego → Resultados
+Dashboard → Crear Sala → ConfigurarSala → Lobby → Arena → Resultados
+Dashboard → Unirse Sala → ConfigurarSala → Lobby → Arena → Resultados
 ```
 
 ### **3. Modo Entrenamiento**

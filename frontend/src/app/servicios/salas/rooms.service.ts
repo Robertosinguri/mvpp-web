@@ -45,4 +45,20 @@ export class RoomsService {
   joinRoom(roomCode: string, jugador: { id: string; nombre: string }): Observable<{ success: boolean; sala: Sala; message?: string }> {
     return this.http.post<{ success: boolean; sala: Sala; message?: string }>(`${this.apiUrl}/${roomCode}/join`, jugador);
   }
+
+  // Salir de una sala
+  leaveRoom(roomCode: string, userId: string): Observable<{ success: boolean; sala: Sala | null }> {
+    return this.http.delete<{ success: boolean; sala: Sala | null }>(`${this.apiUrl}/${roomCode}/leave`, {
+      body: { userId }
+    });
+  }
+
+  // Configurar jugador (temática y dificultad)
+  configurePlayer(roomCode: string, userId: string, tematica: string, dificultad: 'baby' | 'conocedor' | 'killer'): Observable<{ success: boolean; sala: Sala }> {
+    return this.http.put<{ success: boolean; sala: Sala }>(`${this.apiUrl}/${roomCode}/configure`, {
+      userId,
+      tematica,
+      dificultad
+    });
+  }
 }

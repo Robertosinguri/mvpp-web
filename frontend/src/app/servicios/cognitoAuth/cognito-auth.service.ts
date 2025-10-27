@@ -231,4 +231,11 @@ export class CognitoAuthService {
   public getUserAttributes() {
     return fetchUserAttributes();
   }
+
+  /**
+   * Devuelve el usuario actual desde el signal.
+   */
+  public usuarioActual() {
+    return this.currentUser();
+  }
 }

@@ -1,0 +1,202 @@
+@use '../../theme/variables.scss' as *;
+
+.dashboard-header {
+  @extend %page-header;
+  gap: 2rem;
+  min-height: 80px;
+  
+  .profile-section {
+    flex-shrink: 0;
+    width: 70px;
+  }
+  
+  h1 {
+    flex-shrink: 0;
+    font-size: 2rem;
+    color: $primary-yellow;
+    margin: 0;
+  }
+  
+  .main-menu {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .user-info {
+    flex-shrink: 0;
+    min-width: 200px;
+    justify-content: flex-end;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: white;
+    font-family: $font-red-hat;
+  }
+
+  .profile-avatar {
+    .avatar-circle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, $primary-purple, $primary-aqua);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+      border: 2px solid $primary-aqua;
+      box-shadow: 0 0 15px rgba(1, 186, 154, 0.3);
+      cursor: pointer;
+      transition: box-shadow 0.3s ease;
+
+      &:hover {
+        box-shadow: 0 0 20px rgba(1, 186, 154, 0.5);
+      }
+    }
+  }
+
+  .menu-list {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 2rem;
+
+    .menu-item {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      transition: all 0.3s ease;
+      font-family: $font-red-hat;
+      font-weight: 600;
+      white-space: nowrap;
+      min-width: 100px;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 0.9rem;
+
+      &:hover {
+        color: $primary-aqua;
+        text-shadow: 0 0 10px rgba(1, 186, 154, 0.8),
+                     0 0 20px rgba(1, 186, 154, 0.6),
+                     0 0 30px rgba(1, 186, 154, 0.4);
+      }
+
+      &.active {
+        color: $primary-aqua;
+        text-shadow: 0 0 10px rgba(1, 186, 154, 1),
+                     0 0 20px rgba(1, 186, 154, 0.8),
+                     0 0 30px rgba(1, 186, 154, 0.6),
+                     0 0 40px rgba(1, 186, 154, 0.4);
+        animation: neonPulse 2s ease-in-out infinite alternate;
+      }
+    }
+  }
+
+  span {
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .logout-btn {
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: 1px solid $primary-pink;
+    color: $primary-pink;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: $font-red-hat;
+    white-space: nowrap;
+
+    &:hover {
+      background: $primary-pink;
+      color: white;
+      box-shadow: 0 0 10px rgba(255, 80, 140, 0.4);
+    }
+  }
+}
+
+.navbar-content {
+  display: flex;
+  min-height: calc(100vh - 80px);
+}
+
+.profile-dropdown {
+  width: 0;
+  overflow: hidden;
+  transition: width 0.3s ease;
+  background: rgba(26, 26, 46, 0.95);
+  border-right: 1px solid $primary-aqua;
+  flex-shrink: 0;
+  
+  &.open {
+    width: 300px;
+  }
+
+  .stats-panel {
+    padding: 1.5rem;
+    width: 300px;
+    
+    h4 {
+      color: $primary-yellow;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+  }
+}
+
+// Estilos del sidebar
+.user-email {
+  text-align: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+
+  .email-text {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-family: $font-red-hat;
+    font-style: italic;
+  }
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+  
+  .stat-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+  
+  .stat-value {
+    font-weight: bold;
+    
+    &.highlight {
+      color: $primary-yellow;
+    }
+    
+    &.ranking {
+      color: $primary-pink;
+    }
+  }
+}
+
+@keyframes neonPulse {
+  0% {
+    text-shadow: 0 0 10px rgba(1, 186, 154, 1),
+                 0 0 20px rgba(1, 186, 154, 0.8),
+                 0 0 30px rgba(1, 186, 154, 0.6),
+                 0 0 40px rgba(1, 186, 154, 0.4);
+  }
+  100% {
+    text-shadow: 0 0 15px rgba(1, 186, 154, 1),
+                 0 0 25px rgba(1, 186, 154, 0.9),
+                 0 0 35px rgba(1, 186, 154, 0.7),
+                 0 0 45px rgba(1, 186, 154, 0.5);
+  }
+}

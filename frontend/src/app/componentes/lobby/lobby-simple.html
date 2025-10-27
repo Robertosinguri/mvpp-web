@@ -1,0 +1,144 @@
+<background></background>
+<div style="padding: 20px; color: white; min-height: 100vh;">
+  
+  <!-- Header -->
+  <div style="text-align: center; margin-bottom: 30px;">
+    <h1 style="color: #E6BD00; font-size: 2.5rem;">🎮 Sala de Juego</h1>
+    <button (click)="volver()" style="background: #ff4444; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+      ← Salir de Sala
+    </button>
+  </div>
+
+  <!-- Código de Sala Destacado -->
+  <div style="background: linear-gradient(135deg, #01BA9A, #00a085); border-radius: 15px; padding: 30px; margin: 20px auto; max-width: 600px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+    <h2 style="color: white; margin-bottom: 20px; font-size: 1.5rem;">✅ Sala Creada</h2>
+    <p style="color: white; margin-bottom: 20px;">Comparte este código con tus amigos:</p>
+    
+    <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px;">
+      <div style="background: rgba(0,0,0,0.4); padding: 20px 30px; border-radius: 10px; border: 3px solid #E6BD00;">
+        <span style="font-family: monospace; font-size: 2.5rem; color: #E6BD00; font-weight: 700; letter-spacing: 5px;">
+          {{codigoSala}}
+        </span>
+      </div>
+      <button (click)="copiarCodigo()" style="background: #E6BD00; color: black; border: none; padding: 20px 25px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 1.1rem;">
+        📋 Copiar
+      </button>
+    </div>
+    
+    <p style="color: #E6BD00; font-size: 0.9rem; margin: 0;">
+      Este código es válido hasta que termine la partida
+    </p>
+  </div>
+
+  <!-- Información del Juego -->
+  <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 20px; margin: 20px auto; max-width: 600px;">
+    <h3 style="color: #01BA9A; margin-bottom: 15px;">📊 Información del Juego</h3>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+      <div>
+        <strong style="color: #E6BD00;">Jugadores:</strong> {{jugadores.length}}/{{maxJugadores}}
+      </div>
+      <div>
+        <strong style="color: #E6BD00;">Preguntas:</strong> 5 total
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de Jugadores -->
+  <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 20px; margin: 20px auto; max-width: 600px;">
+    <h3 style="color: #01BA9A; margin-bottom: 15px;">👥 Jugadores Conectados</h3>
+    
+    <div *ngFor="let jugador of jugadores" style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <strong style="color: white;">{{jugador.nombre}}</strong>
+        <span *ngIf="jugador.esHost" style="color: #E6BD00; margin-left: 10px;">👑 Host</span>
+      </div>
+      <div>
+        <span *ngIf="jugador.configurado" style="color: #01BA9A;">✅ Listo</span>
+        <span *ngIf="!jugador.configurado" style="color: #E6BD00;">⏳ Configurando...</span>
+      </div>
+    </div>
+
+    <!-- Slots vacíos -->
+    <div *ngFor="let slot of getSlotsVacios()" style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 2px dashed rgba(255,255,255,0.3); text-align: center;">
+      <span style="color: rgba(255,255,255,0.5); font-style: italic;">Esperando jugador...</span>
+    </div>
+  </div>
+
+  <!-- Botón de Configurar (si no estás configurado) -->
+  <div *ngIf="currentUser && !currentUser.configurado" style="text-align: center; margin: 30px 0;">
+    <button (click)="abrirConfiguracion()" style="background: linear-gradient(45deg, #B601FF, #814FC4); color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 1.2rem; font-weight: 700; cursor: pointer;">
+      ⚙️ Configurar mis Preguntas
+    </button>
+  </div>
+
+  <!-- Botón de Iniciar (solo para host cuando todos listos) -->
+  <div *ngIf="esHost && todosListos()" style="text-align: center; margin: 30px 0;">
+    <button (click)="iniciarPartida()" style="background: linear-gradient(45deg, #01BA9A, #00a085); color: white; border: none; padding: 20px 40px; border-radius: 25px; font-size: 1.3rem; font-weight: 700; cursor: pointer; animation: pulse 2s infinite;">
+      🚀 Iniciar Partida
+    </button>
+  </div>
+
+  <!-- Estado del Juego -->
+  <div style="text-align: center; margin: 20px 0;">
+    <p *ngIf="!todosListos()" style="color: #E6BD00; font-size: 1.1rem;">
+      ⏳ Esperando que todos configuren sus preguntas...
+    </p>
+    <p *ngIf="todosListos() && !esHost" style="color: #01BA9A; font-size: 1.1rem;">
+      ✅ Todos listos! Esperando que el host inicie la partida...
+    </p>
+  </div>
+
+</div>
+
+<!-- Modal de Configuración -->
+<div *ngIf="mostrarConfigModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+  <div style="background: #1a1a2e; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%;">
+    <h3 style="color: #E6BD00; margin-bottom: 20px; text-align: center;">⚙️ Configurar mis Preguntas</h3>
+    
+    <div style="margin-bottom: 20px;">
+      <label style="color: white; display: block; margin-bottom: 10px;">Temática (máx. 3 palabras):</label>
+      <input 
+        type="text" 
+        [(ngModel)]="configuracionJugador.tematica"
+        placeholder="ej: deportes, historia, ciencia"
+        style="width: 100%; padding: 10px; border-radius: 5px; border: 2px solid #01BA9A; background: rgba(255,255,255,0.1); color: white; font-size: 1rem;">
+    </div>
+    
+    <div style="margin-bottom: 30px;">
+      <label style="color: white; display: block; margin-bottom: 10px;">Dificultad:</label>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button 
+          (click)="configuracionJugador.dificultad = 'baby'"
+          [style.background]="configuracionJugador.dificultad === 'baby' ? '#01BA9A' : 'rgba(255,255,255,0.2)'"
+          style="color: white; border: none; padding: 10px 15px; border-radius: 20px; cursor: pointer;">
+          🍼 Baby
+        </button>
+        <button 
+          (click)="configuracionJugador.dificultad = 'conocedor'"
+          [style.background]="configuracionJugador.dificultad === 'conocedor' ? '#E6BD00' : 'rgba(255,255,255,0.2)'"
+          style="color: white; border: none; padding: 10px 15px; border-radius: 20px; cursor: pointer;">
+          🧠 Conocedor
+        </button>
+        <button 
+          (click)="configuracionJugador.dificultad = 'killer'"
+          [style.background]="configuracionJugador.dificultad === 'killer' ? '#ff4444' : 'rgba(255,255,255,0.2)'"
+          style="color: white; border: none; padding: 10px 15px; border-radius: 20px; cursor: pointer;">
+          💀 Killer
+        </button>
+      </div>
+    </div>
+    
+    <div style="display: flex; gap: 15px; justify-content: center;">
+      <button (click)="cerrarConfiguracion()" style="background: #666; color: white; border: none; padding: 12px 25px; border-radius: 25px; cursor: pointer;">
+        Cancelar
+      </button>
+      <button 
+        (click)="guardarConfiguracion()" 
+        [disabled]="!esConfiguracionValida()"
+        [style.opacity]="esConfiguracionValida() ? '1' : '0.5'"
+        style="background: #01BA9A; color: white; border: none; padding: 12px 25px; border-radius: 25px; cursor: pointer; font-weight: 700;">
+        Guardar
+      </button>
+    </div>
+  </div>
+</div>

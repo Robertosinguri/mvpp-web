@@ -1,7 +1,7 @@
 <background></background>
 <div class="config-container">
   <header class="config-header">
-    <h1>Configurar Sala</h1>
+    <h1>{{esHost ? 'Configurar Sala' : 'Generar Preguntas'}}</h1>
     <button class="back-btn" (click)="volver()">← Volver</button>
   </header>
 
@@ -97,81 +97,127 @@
       <div class="action-buttons">
         <button 
           class="create-btn" 
-          [disabled]="!esConfiguracionValida()"
+          [disabled]="!esConfiguracionValida() || isLoading"
           (click)="crearSala()" 
-          *ngIf="esHost">
-          Crear Sala
+          *ngIf="esHost && !infoSalaExistente">
+          {{isLoading ? 'Iniciando...' : 'Iniciar Sala'}}
         </button>
         <button 
           class="ready-btn" 
-          [disabled]="!esConfiguracionValida()"
+          [disabled]="!esConfiguracionValida() || isLoading"
           (click)="confirmarConfiguracion()" 
           *ngIf="!esHost">
-          Listo
+          {{isLoading ? 'Uniéndose...' : 'Listo'}}
         </button>
       </div>
     </div>
 
     <!-- Panel para HOST -->
     <div class="info-panel" *ngIf="esHost">
-      <h3>Información de la Sala</h3>
-      <div class="info-item">
-        <span class="label">Código:</span>
-        <span class="value">{{codigoSala || 'Se generará automáticamente'}}</span>
+      <!-- Información sutil antes de crear la sala -->
+      <div class="pre-creation-info" *ngIf="!infoSalaExistente">
+        <div class="info-note">
+          💡 Al crear la sala obtendrás un código para invitar amigos
+        </div>
       </div>
-      <div class="info-item">
-        <span class="label">Preguntas totales:</span>
-        <span class="value">5 preguntas</span>
+      
+      <!-- Solo mostrar código después de crear la sala -->
+      <div class="room-code-section" *ngIf="codigoSala && infoSalaExistente">
+        <h3>🎮 Código de Sala</h3>
+        <div class="code-display">
+          <span class="room-code">{{codigoSala}}</span>
+          <button class="copy-btn" 
+                  [class.copied]="copiado" 
+                  (click)="copiarCodigo()" 
+                  title="Copiar código">
+            {{copiado ? '✓' : '📋'}}
+          </button>
+        </div>
+        <p class="share-text">Comparte este código con tus amigos</p>
       </div>
-      <div class="info-item">
-        <span class="label">Distribución:</span>
-        <span class="value">{{getDistribucionPreguntas()}}</span>
+      
+      <div class="game-info">
+        <h4>Información del Juego</h4>
+        <div class="info-item">
+          <span class="label">Preguntas totales:</span>
+          <span class="value">5 preguntas</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Distribución:</span>
+          <span class="value">{{getDistribucionPreguntas()}}</span>
+        </div>
+      </div>
+
+      <!-- Lista de jugadores en tiempo real -->
+      <div class="players-section" *ngIf="infoSalaExistente">
+        <h4>Jugadores ({{infoSalaExistente.jugadoresActuales}}/{{infoSalaExistente.maxJugadores}})</h4>
+        <div class="players-list">
+          <div class="player-card" *ngFor="let jugador of infoSalaExistente.jugadores">
+            <div class="player-name">
+              {{jugador.nombre}}
+              <span class="host-badge" *ngIf="jugador.esHost">👑</span>
+            </div>
+            <div class="player-status" [class.configured]="jugador.tematica && jugador.dificultad">
+              <span *ngIf="jugador.tematica && jugador.dificultad">✅ Listo</span>
+              <span *ngIf="!jugador.tematica || !jugador.dificultad">⏳ Configurando...</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Botón "Iniciar Juego" movido al Lobby -->
+        <div class="info-message">
+          🎯 Una vez que todos estén listos, irán al lobby para iniciar la partida
+        </div>
       </div>
     </div>
 
     <!-- Panel para INVITADO -->
     <div class="sala-info-panel" *ngIf="!esHost && infoSalaExistente">
-      <h3>Sala: {{infoSalaExistente.codigo}}</h3>
-      
-      <div class="host-info">
-        <h4>👑 Host: {{infoSalaExistente.host}}</h4>
+      <div class="room-header">
+        <h3>🎮 Sala: {{infoSalaExistente.codigo}}</h3>
+        <div class="host-info">
+          <span>👑 Host: {{infoSalaExistente.host}}</span>
+        </div>
       </div>
 
-      <div class="jugadores-actuales">
+      <div class="players-section">
         <h4>Jugadores ({{infoSalaExistente.jugadoresActuales}}/{{infoSalaExistente.maxJugadores}})</h4>
         
-        <div class="jugadores-list">
-          <div class="jugador-item" *ngFor="let jugador of infoSalaExistente.jugadores">
-            <div class="jugador-nombre">
+        <div class="players-list">
+          <div class="player-card" *ngFor="let jugador of infoSalaExistente.jugadores">
+            <div class="player-name">
               {{jugador.nombre}}
               <span class="host-badge" *ngIf="jugador.esHost">👑</span>
             </div>
-            <div class="jugador-config">
-              <span class="tema">{{jugador.tematica}}</span>
-              <span class="dificultad dif-{{jugador.dificultad}}">{{jugador.dificultad}}</span>
+            <div class="player-config">
+              <span class="tema" *ngIf="jugador.tematica">{{jugador.tematica}}</span>
+              <span class="dificultad" *ngIf="jugador.dificultad">{{jugador.dificultad}}</span>
+              <span class="status" [class.ready]="jugador.tematica && jugador.dificultad">
+                {{(jugador.tematica && jugador.dificultad) ? '✅ Listo' : '⏳ Configurando...'}}
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="tu-aporte">
-        <h4>🎯 Tu Aporte</h4>
-        <p>Configura tu temática para completar el cuestionario colaborativo</p>
-      </div>
-
       <div class="game-preview">
+        <h4>🎯 Información del Juego</h4>
         <div class="preview-item">
           <span class="label">Preguntas totales:</span>
           <span class="value">5</span>
         </div>
         <div class="preview-item">
-          <span class="label">Temáticas actuales:</span>
+          <span class="label">Temáticas configuradas:</span>
           <div class="temas-actuales">
-            <span class="tema-tag" *ngFor="let jugador of infoSalaExistente.jugadores">
-              {{jugador.tematica}}
+            <span class="tema-tag" *ngFor="let jugador of infoSalaExistente.jugadores" 
+                  [class.configured]="jugador.tematica">
+              {{jugador.tematica || jugador.nombre + ' (pendiente)'}}
             </span>
-            <span class="tema-tag pending">+ Tu temática</span>
           </div>
+        </div>
+        
+        <div class="info-message">
+          🎯 Una vez configurado, irás al lobby donde el host puede iniciar la partida
         </div>
       </div>
     </div>

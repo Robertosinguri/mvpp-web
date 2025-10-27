@@ -2,7 +2,7 @@
 // Configuración DynamoDB
 // =======================
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-const { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand, UpdateCommand, DeleteCommand } = require('@aws-sdk/lib-dynamodb');
+const { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand, UpdateCommand, DeleteCommand, ScanCommand } = require('@aws-sdk/lib-dynamodb');
 
 // Cliente DynamoDB
 const client = new DynamoDBClient({  
@@ -53,6 +53,13 @@ const consultar = async (commandParams) => {
   return result.Items;
 };
 
+// Escanear una tabla completa
+const scan = async (commandParams) => {
+  const command = new ScanCommand(commandParams);
+  const result = await docClient.send(command);
+  return result.Items;
+};
+
 // Actualizar registro
 const actualizar = async (tabla, key, updateExpression, expressionValues) => {
   const command = new UpdateCommand({
@@ -79,6 +86,7 @@ module.exports = {
   crear,
   obtenerPorId,
   consultar,
+  scan,
   actualizar,
   borrar
 };

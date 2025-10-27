@@ -1,4 +1,3 @@
-//import { Routes } from '@angular/router';
 import { SplashComponent } from './componentes/splash/splash';
 import { Login } from './componentes/login/login';
 import { DashboardComponent } from './componentes/dashboard/dashboard';
@@ -8,7 +7,10 @@ import { EntrenamientoComponent } from './componentes/entrenamiento/entrenamient
 import { JuegoComponent } from './componentes/juego/juego'; 
 import { About } from './componentes/about/about';
 import { Routes } from '@angular/router';
-import { RankingComponent } from './componentes/ranking/ranking'; // Asegúrate que la ruta sea correcta
+import { RankingComponent } from './componentes/ranking/ranking';
+import { ResultadosComponent } from './componentes/resultados/resultados';
+import { ArenaComponent } from './componentes/arena/arena';
+import { authGuard } from './auth.guard'; 
 
 export const routes: Routes = [
   // RUTA 1: La ruta raíz (la primera que se carga)
@@ -26,54 +28,77 @@ export const routes: Routes = [
   // RUTA 3: Dashboard principal después del login
   {
     path: 'dashboard',
-    component: DashboardComponent
+    component: DashboardComponent,
+    canActivate: [authGuard]
   },
   
   // RUTA 4: Configurar sala (crear)
   {
     path: 'crear-sala',
-    component: ConfigurarSalaComponent
+    component: ConfigurarSalaComponent,
+    canActivate: [authGuard]
   },
   
   // RUTA 5: Configurar sala (unirse)
   {
     path: 'unirse-sala',
-    component: ConfigurarSalaComponent
+    component: ConfigurarSalaComponent,
+    canActivate: [authGuard]
   },
   
-  // RUTA 6: Lobby de la sala
+  // RUTA 6: Lobby (sala de espera)
   {
     path: 'lobby',
-    component: LobbyComponent
+    component: LobbyComponent,
+    canActivate: [authGuard]
   },
   
   // RUTA 7: Entrenamiento individual
   {
     path: 'entrenamiento',
-    component: EntrenamientoComponent
+    component: EntrenamientoComponent,
+    canActivate: [authGuard]
   },
   
-  // RUTA 8: Juego (entrenamiento y multijugador)
+  // RUTA 8: Juego (solo entrenamiento individual)
   {
     path: 'juego',
-    component: JuegoComponent
+    component: JuegoComponent,
+    canActivate: [authGuard]
   },
   
   // RUTA 9: About
   {
     path: 'about',
-    component: About
+    component: About,
+    canActivate: [authGuard]
   },
-  
-  // RUTA OPCIONAL: Si el usuario teclea una URL incorrecta, redirige al inicio
+
+  //ruta 10: ranking
+  { 
+    path: 'ranking', 
+    component: RankingComponent,
+    canActivate: [authGuard]
+  },
+
+  // RUTA 11: Arena multijugador
+  {
+    path: 'arena',
+    component: ArenaComponent,
+    canActivate: [authGuard]
+  },
+
+  // RUTA 12: Resultados multijugador
+  {
+    path: 'resultados',
+    component: ResultadosComponent,
+    canActivate: [authGuard]
+  },
+
+  // RUTA OPCIONAL: Si el usuario teclea una URL incorrecta, redirige al dashboard
   {
     path: '**',
-    redirectTo: '' 
-  },
-  
-  { path: 'ranking', 
-    component: RankingComponent 
-  },
-  
+    redirectTo: '/dashboard' 
+  }  
 
 ];

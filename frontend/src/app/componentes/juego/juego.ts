@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { GeminiService, Pregunta, ConfiguracionJuego } from '../../servicios/gemini/gemini';
+import { CognitoAuthService } from '../../servicios/cognitoAuth/cognito-auth.service';
+import { EstadisticasService, ResultadoJuego } from '../../servicios/estadisticas/estadisticas.service';
 import { bkgComponent, } from '../background/background';
 
 type EstadoJuego = 'cargando' | 'jugando' | 'finalizado';
@@ -41,6 +43,8 @@ export class JuegoComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private geminiService: GeminiService,
+    private authService: CognitoAuthService,
+    private estadisticasService: EstadisticasService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -56,14 +60,37 @@ export class JuegoComponent implements OnInit, OnDestroy {
   private cargarConfiguracion() {
     const params = this.route.snapshot.queryParams;
     this.modoJuego = params['modo'] || 'entrenamiento';
-    this.tematica = params['tema'] || 'general';
     this.dificultad = params['dificultad'] || 'baby';
+    
+    // Para multijugador, mostrar temática mixta en UI
+    if (params['tematicas'] && this.modoJuego === 'multijugador') {
+      const tematicas = params['tematicas'].split(',').filter((t: string) => t.trim());
+      if (tematicas.length > 1) {
+        this.tematica = `Preguntas mixtas: ${tematicas.join(' + ')}`;
+      } else {
+        this.tematica = tematicas[0] || 'general';
+      }
+    } else {
+      this.tematica = params['tema'] || 'general';
+    }
+    
+    console.log('=== CONFIGURACIÓN CARGADA ===');
+    console.log('Modo:', this.modoJuego);
+    console.log('Temática para UI:', this.tematica);
+    console.log('Dificultad:', this.dificultad);
+    console.log('Parámetros completos:', params);
   }
 
   private async iniciarJuego() {
     this.estadoJuego = 'cargando';
     this.tiempoInicio = Date.now();
     
+    // El componente Juego solo maneja entrenamiento
+    // El multijugador va directamente a Arena desde Lobby
+    await this.generarPreguntasEntrenamiento();
+  }
+
+  private async generarPreguntasEntrenamiento() {
     const config: ConfiguracionJuego = {
       tematica: this.tematica,
       dificultad: this.dificultad,
@@ -81,17 +108,18 @@ export class JuegoComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error cargando preguntas:', error);
-          this.preguntas = this.generarPreguntasFallback(config);
-          this.cargarPreguntaActual();
-          this.estadoJuego = 'jugando';
-          this.cdr.detectChanges();
-          this.iniciarTimer();
+          this.mostrarErrorIA(error.message || 'Error generando preguntas');
         }
       });
     } catch (error) {
       console.error('Error iniciando juego:', error);
+      this.mostrarErrorIA('Error crítico iniciando el juego');
     }
   }
+
+
+
+
 
   private cargarPreguntaActual() {
     if (this.preguntaActual < this.preguntas.length) {
@@ -161,9 +189,61 @@ export class JuegoComponent implements OnInit, OnDestroy {
     }
   }
 
-  private finalizarJuego() {
+  private async finalizarJuego() {
     this.limpiarTimer();
-    this.estadoJuego = 'finalizado';
+    
+    // Guardar resultado para entrenamiento
+    if (this.modoJuego === 'entrenamiento') {
+      await this.guardarResultadoEntrenamiento();
+    }
+    
+    if (this.modoJuego === 'multijugador') {
+      // Navegar a resultados multijugador
+      this.router.navigate(['/resultados'], {
+        queryParams: {
+          roomCode: this.route.snapshot.queryParams['roomCode'],
+          tema: this.tematica,
+          dificultad: this.dificultad,
+          puntaje: this.puntaje,
+          tiempo: Math.floor((Date.now() - this.tiempoInicio) / 1000)
+        }
+      });
+    } else {
+      // Mostrar resultados en el mismo componente para entrenamiento
+      this.estadoJuego = 'finalizado';
+    }
+  }
+
+  private async guardarResultadoEntrenamiento() {
+    try {
+      const usuario = this.authService.usuarioActual();
+      if (!usuario?.email) {
+        console.log('No hay usuario autenticado, no se guarda resultado');
+        return;
+      }
+
+      const resultado: ResultadoJuego = {
+        userId: usuario.email,
+        tematica: this.tematica,
+        dificultad: this.dificultad,
+        puntaje: this.puntaje,
+        respuestasCorrectas: this.puntaje,
+        totalPreguntas: this.totalPreguntas,
+        tiempoTotal: Math.floor((Date.now() - this.tiempoInicio) / 1000),
+        fecha: new Date()
+      };
+      
+      this.estadisticasService.guardarResultadoPartida(resultado).subscribe({
+        next: (response) => {
+          console.log('📊 Resultado entrenamiento guardado:', response);
+        },
+        error: (error) => {
+          console.error('❌ Error guardando resultado entrenamiento:', error);
+        }
+      });
+    } catch (error) {
+      console.error('❌ Error guardando resultado entrenamiento:', error);
+    }
   }
 
   esUltimaPregunta(): boolean {
@@ -210,51 +290,18 @@ export class JuegoComponent implements OnInit, OnDestroy {
     this.iniciarJuego();
   }
 
-  private generarPreguntasFallback(config: ConfiguracionJuego): Pregunta[] {
-    return [
-      {
-        pregunta: `¿Estás listo para responder preguntas sobre ${this.tematica}?`,
-        opciones: ['Sí, estoy listo', 'Necesito más tiempo', 'No estoy seguro', 'Vamos a intentarlo'],
-        respuestaCorrecta: 0,
-        tematica: this.tematica,
-        dificultad: this.dificultad
-      },
-      {
-        pregunta: `¿Qué nivel de conocimiento tienes sobre ${this.tematica}?`,
-        opciones: ['Básico', 'Intermedio', 'Avanzado', 'Experto'],
-        respuestaCorrecta: 1,
-        tematica: this.tematica,
-        dificultad: this.dificultad
-      },
-      {
-        pregunta: `¿Dónde aprendiste sobre ${this.tematica}?`,
-        opciones: ['Libros', 'Internet', 'Experiencia', 'Todas las anteriores'],
-        respuestaCorrecta: 3,
-        tematica: this.tematica,
-        dificultad: this.dificultad
-      },
-      {
-        pregunta: `¿${this.tematica} te parece interesante?`,
-        opciones: ['Muy interesante', 'Algo interesante', 'Poco interesante', 'Nada interesante'],
-        respuestaCorrecta: 0,
-        tematica: this.tematica,
-        dificultad: this.dificultad
-      },
-      {
-        pregunta: `¿Recomendarías ${this.tematica} a otros?`,
-        opciones: ['Definitivamente sí', 'Probablemente sí', 'Tal vez', 'No'],
-        respuestaCorrecta: 0,
-        tematica: this.tematica,
-        dificultad: this.dificultad
-      }
-    ];
+  private mostrarErrorIA(mensaje: string) {
+    this.estadoJuego = 'finalizado';
+    // Mostrar mensaje de error en lugar de preguntas fallback
+    alert(`❌ Error: ${mensaje}\n\nEl servicio de IA no está disponible en este momento. Por favor, intenta más tarde.`);
+    this.volverAlMenu();
   }
 
   volverAlMenu() {
-    if (this.modoJuego === 'entrenamiento') {
-      this.router.navigate(['/entrenamiento']);
-    } else {
-      this.router.navigate(['/dashboard']);
-    }
+    this.router.navigate(['/entrenamiento']);
+  }
+
+  irAlDashboard() {
+    this.router.navigate(['/dashboard']);
   }
 }

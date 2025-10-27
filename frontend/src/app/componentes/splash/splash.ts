@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { bkgComponent} from '../background/background';
+import { CognitoAuthService } from '../../servicios/cognitoAuth/cognito-auth.service';
 
 /**
 * Componente de pantalla de bienvenida (splash screen)
@@ -20,10 +21,19 @@ export class SplashComponent implements OnInit, OnDestroy {
   private timer: ReturnType<typeof setTimeout> | null = null;
   private readonly SPLASH_DURATION = 12000; // 12 segundos
 
-  constructor(private readonly router: Router) {}
+  constructor(
+    private readonly router: Router,
+    private readonly authService: CognitoAuthService
+  ) {}
 
   ngOnInit(): void {
-    this.startSplashTimer();
+    // Si ya está logueado, ir directo al dashboard
+    const user = this.authService.currentUser$();
+    if (user) {
+      this.router.navigate(['/dashboard'], { replaceUrl: true });
+    } else {
+      this.startSplashTimer();
+    }
   }
 
   ngOnDestroy(): void {
