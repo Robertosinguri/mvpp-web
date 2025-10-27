@@ -5,7 +5,6 @@ const express = require('express');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
-const { verificarYCrearTablas } = require('./services/autoInitTables');
 
 const app = express();
 const server = createServer(app);
@@ -57,14 +56,10 @@ io.on('connection', (socket) => {
 });
 
 // =======================
-// Inicio del servidor con auto-inicialización
+// Inicio del servidor
 // =======================
 const PORT = 3000;
-server.listen(PORT, async () => {
-  console.log(`🚀 Servidor TRIVIA WAR iniciado en puerto ${PORT}`);
-  
-  // Auto-inicializar tablas DynamoDB
-  await verificarYCrearTablas();
-  
-  console.log(`🎮 TRIVIA WAR listo en http://localhost:${PORT}`);
+server.listen(PORT, () => {
+  console.log(`🚀 TRIVIA WAR corriendo en puerto ${PORT}`);
+  console.log(`🎮 Conectado a DynamoDB (NAS + Tailscale)`);
 });

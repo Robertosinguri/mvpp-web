@@ -75,7 +75,7 @@ mvpp-web/
 ┌─────────────────────────────────────────────────────────┐
 │                 SERVICIOS EXTERNOS                      │
 ├─────────────────────────────────────────────────────────┤
-│ • AWS DynamoDB (Persistencia NoSQL)                     │
+│ • DynamoDB en NAS (Persistencia NoSQL + Tailscale)                     │
 │ • Google Gemini API (Generación IA)                     │
 │ • AWS Cognito (Autenticación JWT)                       │
 └─────────────────────────────────────────────────────────┘
@@ -172,7 +172,7 @@ cd backend
 npm install
 npm run dev
 # http://localhost:3000
-# Las tablas DynamoDB se crean automáticamente al iniciar
+# Se conecta a DynamoDB existente (NAS + Tailscale)
 ```
 
 ## 🛠️ Stack Tecnológico
@@ -195,7 +195,7 @@ npm run dev
 - **IA:** Google Gemini API
 - **Autenticación:** AWS Cognito
 - **Base de Datos:** AWS DynamoDB
-- **Conectividad:** Tailscale Funnel (HTTPS)
+- **Conectividad:** Tailscale Funnel (NAS + HTTPS)
 
 ### **Características Técnicas**
 - **Arquitectura:** Frontend/Backend separados
@@ -348,7 +348,7 @@ Dashboard → Generador Avatar → Preguntas IA → Avatar Personalizado
 # Terminal 1 - Frontend
 cd frontend && npm install && ng serve
 
-# Terminal 2 - Backend (auto-inicializa tablas DynamoDB)
+# Terminal 2 - Backend (conecta a DynamoDB en NAS)
 cd backend && npm install && npm run dev
 ```
 
